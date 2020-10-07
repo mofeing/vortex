@@ -1,0 +1,10 @@
+diff --git a/llvm/lib/Extensions/LLVMBuild.txt b/llvm/lib/Extensions/LLVMBuild.txt
+index 2005830a4dd..7a98c8f6805 100644
+--- a/llvm/lib/Extensions/LLVMBuild.txt
++++ b/llvm/lib/Extensions/LLVMBuild.txt
+@@ -18,4 +18,4 @@
+ type = Library
+ name = Extensions
+ parent = Libraries
+-required_libraries =
++required_libraries = Support
