@@ -97,6 +97,9 @@ module VX_mem_unit # (
         .core_rsp_tag       (core_smem_rsp_if.tag),
         .core_rsp_ready     (core_smem_rsp_if.ready),
 
+        // Split signal
+        `UNUSED_PIN (split_enable),
+
         // DRAM request
         `UNUSED_PIN (dram_req_valid),
         `UNUSED_PIN (dram_req_rw),        
@@ -179,6 +182,9 @@ module VX_mem_unit # (
         .core_rsp_tag       (core_dcache_rsp_qual_if.tag),
         .core_rsp_ready     (core_dcache_rsp_qual_if.ready),
 
+        // Split signal
+        `UNUSED_PIN (split_enable),
+
         // DRAM request
         .dram_req_valid     (dcache_dram_req_if.valid),
         .dram_req_rw        (dcache_dram_req_if.rw),        
@@ -259,6 +265,9 @@ module VX_mem_unit # (
         .core_rsp_data         (core_icache_rsp_if.data),
         .core_rsp_tag          (core_icache_rsp_if.tag),
         .core_rsp_ready        (core_icache_rsp_if.ready),
+
+        // Split signal
+        `UNUSED_PIN (split_enable),
 
         // DRAM Req
         .dram_req_valid        (icache_dram_req_if.valid),

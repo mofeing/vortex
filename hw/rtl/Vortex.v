@@ -354,6 +354,8 @@ module Vortex (
         wire [`NUM_CLUSTERS-1:0][`L2SNP_TAG_WIDTH-1:0]       l3_snp_fwdin_tag;
         wire [`NUM_CLUSTERS-1:0]                             l3_snp_fwdin_ready;
 
+        wire                                                 split_enable;
+
         for (genvar i = 0; i < `L3NUM_REQUESTS; i++) begin
             // Core Request
             assign l3_core_req_valid  [i] = per_cluster_dram_req_valid [i];
@@ -426,6 +428,9 @@ module Vortex (
             .core_rsp_data      (l3_core_rsp_data),
             .core_rsp_tag       (l3_core_rsp_tag),              
             .core_rsp_ready     (l3_core_rsp_ready),
+
+            // Split signal
+            .split_enable       (split_enable),
 
             // DRAM request
             .dram_req_valid     (dram_req_valid),

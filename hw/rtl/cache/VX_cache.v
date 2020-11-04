@@ -78,6 +78,9 @@ module VX_cache #(
     output wire [NUM_REQUESTS-1:0][`WORD_WIDTH-1:0]         core_rsp_data,
     output wire [`CORE_REQ_TAG_COUNT-1:0][CORE_TAG_WIDTH-1:0] core_rsp_tag,
     input  wire                                             core_rsp_ready,   
+
+    // Split signal
+    input  wire split_enable,
     
     // DRAM request
     output wire                             dram_req_valid,
@@ -224,6 +227,9 @@ module VX_cache #(
         assign snp_req_ready_qual = per_bank_snp_req_ready[`DRAM_ADDR_BANK(snp_req_addr_qual)];
     end    
 
+    // pass split_enable only on L3 cache
+    wire split_enable_int;
+    assign split_enable_int = (`L3_ENABLE && CACHE_ID == `L3CACHE_ID) ? split_enable : 0;
     VX_cache_core_req_bank_sel #(
         .BANK_LINE_SIZE (BANK_LINE_SIZE),
         .NUM_BANKS      (NUM_BANKS),
@@ -234,6 +240,7 @@ module VX_cache #(
         .per_bank_ready  (per_bank_core_req_ready),
         .core_req_addr   (core_req_addr),
         .per_bank_valid  (per_bank_valid),
+        .split_enable    (split_enable_int),
         .core_req_ready  (core_req_ready)
     );
 

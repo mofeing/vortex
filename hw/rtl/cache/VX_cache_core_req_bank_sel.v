@@ -14,6 +14,7 @@ module VX_cache_core_req_bank_sel #(
 `IGNORE_WARNINGS_BEGIN    
     input  wire [NUM_REQUESTS-1:0][`WORD_ADDR_WIDTH-1:0] core_req_addr,    
 `IGNORE_WARNINGS_END
+    input  wire                                          split_enable,
     input  wire [NUM_BANKS-1:0]                          per_bank_ready,
     output wire [NUM_BANKS-1:0][NUM_REQUESTS-1:0]        per_bank_valid,
     output wire                                          core_req_ready 

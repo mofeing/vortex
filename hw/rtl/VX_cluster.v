@@ -400,6 +400,9 @@ module VX_cluster #(
             .core_rsp_tag       (l2_core_rsp_tag),
             .core_rsp_ready     (l2_core_rsp_ready),
 
+            // Split signal
+            `UNUSED_PIN         (split_enable),
+
             // DRAM request
             .dram_req_valid     (dram_req_valid),
             .dram_req_rw        (dram_req_rw),        
