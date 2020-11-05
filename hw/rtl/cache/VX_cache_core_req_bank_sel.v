@@ -21,6 +21,12 @@ module VX_cache_core_req_bank_sel #(
 );     
     reg  [NUM_BANKS-1:0][NUM_REQUESTS-1:0] per_bank_valid_r;
 
+    // check
+    always @(*) begin
+        if (split_en)
+            assert(NUM_BANKS == NUM_REQUESTS) else $error("NUM_BANKS=%d must be equal to NUM_REQUESTS=%d in order for cache splitting to work", NUM_BANKS, NUM_REQUESTS);
+    end
+
     if (NUM_BANKS == 1) begin
         always @(*) begin            
             per_bank_valid_r = 0;
@@ -35,8 +41,13 @@ module VX_cache_core_req_bank_sel #(
             per_bank_valid_r = 0;
             per_bank_ready_sel = {NUM_BANKS{1'b1}};
             for (integer i = 0; i < NUM_REQUESTS; i++) begin
-                per_bank_valid_r[core_req_addr[i][`BANK_SELECT_ADDR_RNG]][i] = core_req_valid[i];
-                per_bank_ready_sel[core_req_addr[i][`BANK_SELECT_ADDR_RNG]] = 0;
+                if (split_en) begin
+                    per_bank_valid_r[i][i] = core_req_valid[i]; // TODO bank-select when NUM_BANKS is **multiple** of NUM_REQUESTS
+                    per_bank_ready_sel[i] = 0;
+                end else begin
+                    per_bank_valid_r[core_req_addr[i][`BANK_SELECT_ADDR_RNG]][i] = core_req_valid[i];
+                    per_bank_ready_sel[core_req_addr[i][`BANK_SELECT_ADDR_RNG]] = 0;
+                end
             end
         end        
         assign core_req_ready = & (per_bank_ready | per_bank_ready_sel);
