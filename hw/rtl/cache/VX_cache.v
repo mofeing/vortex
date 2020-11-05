@@ -227,6 +227,11 @@ module VX_cache #(
         assign snp_req_ready_qual = per_bank_snp_req_ready[`DRAM_ADDR_BANK(snp_req_addr_qual)];
     end    
 
+    // check NUM_BANKS is multiple of NUM_CLUSTERS in L3 cache
+    if (`L3_ENABLE && CACHE_ID == `L3CACHE_ID) begin
+        assert(NUM_BANKS % `NUM_CLUSTERS == 0) else $error("NUM_BANKS=%d is not a multiple of NUM_CLUSTERS=%d, so requests to L3 cache cannot be properly splitted based on clusters", NUM_BANKS, `NUM_CLUSTERS);
+    end
+
     // pass split_enable only on L3 cache
     wire split_enable_int;
     assign split_enable_int = (`L3_ENABLE && CACHE_ID == `L3CACHE_ID) ? split_enable : 0;
