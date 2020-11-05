@@ -98,7 +98,7 @@ module VX_mem_unit # (
         .core_rsp_ready     (core_smem_rsp_if.ready),
 
         // Split signal
-        `UNUSED_PIN (split_enable),
+        `UNUSED_PIN (split_en),
 
         // DRAM request
         `UNUSED_PIN (dram_req_valid),
@@ -183,7 +183,7 @@ module VX_mem_unit # (
         .core_rsp_ready     (core_dcache_rsp_qual_if.ready),
 
         // Split signal
-        `UNUSED_PIN (split_enable),
+        `UNUSED_PIN (split_en),
 
         // DRAM request
         .dram_req_valid     (dcache_dram_req_if.valid),
@@ -267,7 +267,7 @@ module VX_mem_unit # (
         .core_rsp_ready        (core_icache_rsp_if.ready),
 
         // Split signal
-        `UNUSED_PIN (split_enable),
+        `UNUSED_PIN (split_en),
 
         // DRAM Req
         .dram_req_valid        (icache_dram_req_if.valid),

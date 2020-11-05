@@ -401,7 +401,7 @@ module VX_cluster #(
             .core_rsp_ready     (l2_core_rsp_ready),
 
             // Split signal
-            `UNUSED_PIN         (split_enable),
+            `UNUSED_PIN         (split_en),
 
             // DRAM request
             .dram_req_valid     (dram_req_valid),

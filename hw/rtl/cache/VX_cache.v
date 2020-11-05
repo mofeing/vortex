@@ -80,7 +80,7 @@ module VX_cache #(
     input  wire                                             core_rsp_ready,   
 
     // Split signal
-    input  wire split_enable,
+    input  wire split_en,
     
     // DRAM request
     output wire                             dram_req_valid,
@@ -232,9 +232,9 @@ module VX_cache #(
         assert(NUM_BANKS % `NUM_CLUSTERS == 0) else $error("NUM_BANKS=%d is not a multiple of NUM_CLUSTERS=%d, so requests to L3 cache cannot be properly splitted based on clusters", NUM_BANKS, `NUM_CLUSTERS);
     end
 
-    // pass split_enable only on L3 cache
-    wire split_enable_int;
-    assign split_enable_int = (`L3_ENABLE && CACHE_ID == `L3CACHE_ID) ? split_enable : 0;
+    // pass split_en only on L3 cache
+    wire split_en_int;
+    assign split_en_int = (`L3_ENABLE && CACHE_ID == `L3CACHE_ID) ? split_en : 0;
     VX_cache_core_req_bank_sel #(
         .BANK_LINE_SIZE (BANK_LINE_SIZE),
         .NUM_BANKS      (NUM_BANKS),
@@ -245,7 +245,7 @@ module VX_cache #(
         .per_bank_ready  (per_bank_core_req_ready),
         .core_req_addr   (core_req_addr),
         .per_bank_valid  (per_bank_valid),
-        .split_enable    (split_enable_int),
+        .split_en        (split_en_int),
         .core_req_ready  (core_req_ready)
     );
 
