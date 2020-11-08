@@ -13,7 +13,11 @@ module VX_cache #(
     // Number of Word requests per cycle {1, 2, 4, 8, ...}
     parameter NUM_REQUESTS                  = 4, 
     // Enable bank-split behaviour
+    `ifdef SPLIT_CAPABLE
+    parameter SPLIT_CAPABLE                 = `SPLIT_CAPABLE,
+    `else
     parameter SPLIT_CAPABLE                 = 0,
+    `endif
 
     // Queues feeding into banks Knobs {1, 2, 4, 8, ...}
 
