@@ -363,6 +363,7 @@ module VX_cluster #(
             .NUM_BANKS              (`L2NUM_BANKS),
             .WORD_SIZE              (`L2WORD_SIZE),
             .NUM_REQUESTS           (`L2NUM_REQUESTS),
+            .SPLIT_CAPABLE          (0),
             .CREQ_SIZE              (`L2CREQ_SIZE),
             .MRVQ_SIZE              (`L2MRVQ_SIZE),
             .DFPQ_SIZE              (`L2DFPQ_SIZE),

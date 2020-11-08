@@ -392,6 +392,7 @@ module Vortex (
             .NUM_BANKS          (`L3NUM_BANKS),
             .WORD_SIZE          (`L3WORD_SIZE),
             .NUM_REQUESTS       (`L3NUM_REQUESTS),
+            .SPLIT_CAPABLE      (1),
             .CREQ_SIZE          (`L3CREQ_SIZE),
             .MRVQ_SIZE          (`L3MRVQ_SIZE),
             .DFPQ_SIZE          (`L3DFPQ_SIZE),

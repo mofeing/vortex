@@ -12,6 +12,8 @@ module VX_cache #(
     parameter WORD_SIZE                     = 4, 
     // Number of Word requests per cycle {1, 2, 4, 8, ...}
     parameter NUM_REQUESTS                  = 4, 
+    // Enable bank-split behaviour
+    parameter SPLIT_CAPABLE                 = 0,
 
     // Queues feeding into banks Knobs {1, 2, 4, 8, ...}
 
@@ -228,13 +230,13 @@ module VX_cache #(
     end    
 
     // check NUM_BANKS is multiple of NUM_CLUSTERS in L3 cache
-    if (`L3_ENABLE && CACHE_ID == `L3CACHE_ID) begin
-        assert(NUM_BANKS % `NUM_CLUSTERS == 0) else $error("NUM_BANKS=%d is not a multiple of NUM_CLUSTERS=%d, so requests to L3 cache cannot be properly splitted based on clusters", NUM_BANKS, `NUM_CLUSTERS);
+    initial begin
+        assert(SPLIT_CAPABLE || NUM_BANKS % `NUM_CLUSTERS == 0) else $error("NUM_BANKS=%d is not a multiple of NUM_CLUSTERS=%d, so requests to L3 cache cannot be properly splitted based on clusters", NUM_BANKS, `NUM_CLUSTERS);
     end
 
     // pass split_en only on L3 cache
     wire split_en_int;
-    assign split_en_int = (`L3_ENABLE && CACHE_ID == `L3CACHE_ID) ? split_en : 0;
+    assign split_en_int = (SPLIT_CAPABLE) ? split_en : 0;
     VX_cache_core_req_bank_sel #(
         .BANK_LINE_SIZE (BANK_LINE_SIZE),
         .NUM_BANKS      (NUM_BANKS),
