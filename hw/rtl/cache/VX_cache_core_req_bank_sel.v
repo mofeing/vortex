@@ -24,7 +24,7 @@ module VX_cache_core_req_bank_sel #(
     // check
     always @(*) begin
         if (split_en)
-            assert(NUM_BANKS == NUM_REQUESTS) else $error("NUM_BANKS=%d must be equal to NUM_REQUESTS=%d in order for cache splitting to work", NUM_BANKS, NUM_REQUESTS);
+            assert(NUM_BANKS % NUM_REQUESTS == 0) else $error("NUM_BANKS=%d must be equal to NUM_REQUESTS=%d in order for cache splitting to work", NUM_BANKS, NUM_REQUESTS);
     end
 
     if (NUM_BANKS == 1) begin
