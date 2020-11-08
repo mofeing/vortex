@@ -231,7 +231,7 @@ module VX_cache #(
 
     // check NUM_BANKS is multiple of NUM_CLUSTERS in L3 cache
     initial begin
-        assert(SPLIT_CAPABLE || NUM_BANKS % `NUM_CLUSTERS == 0) else $error("NUM_BANKS=%d is not a multiple of NUM_CLUSTERS=%d, so requests to L3 cache cannot be properly splitted based on clusters", NUM_BANKS, `NUM_CLUSTERS);
+        assert(SPLIT_CAPABLE || NUM_BANKS % NUM_REQUESTS == 0) else $error("NUM_BANKS=%d is not a multiple of NUM_REQUESTS=%d, so requests to L3 cache cannot be properly splitted based on clusters", NUM_BANKS, NUM_REQUESTS);
     end
 
     // pass split_en only on L3 cache
