@@ -229,9 +229,9 @@ module VX_cache #(
         assign snp_req_ready_qual = per_bank_snp_req_ready[`DRAM_ADDR_BANK(snp_req_addr_qual)];
     end    
 
-    // check NUM_BANKS is multiple of NUM_CLUSTERS in L3 cache
+    // check NUM_BANKS is multiple of NUM_REQUESTS in L3 cache
     initial begin
-        assert(SPLIT_CAPABLE || NUM_BANKS % NUM_REQUESTS == 0) else $error("NUM_BANKS=%d is not a multiple of NUM_REQUESTS=%d, so requests to L3 cache cannot be properly splitted based on clusters", NUM_BANKS, NUM_REQUESTS);
+        assert(!SPLIT_CAPABLE || NUM_BANKS % NUM_REQUESTS == 0) else $error("NUM_BANKS=%d is not a multiple of NUM_REQUESTS=%d, so requests to L3 cache cannot be properly splitted based on clusters", NUM_BANKS, NUM_REQUESTS);
     end
 
     // pass split_en only on L3 cache
