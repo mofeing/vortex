@@ -37,7 +37,7 @@ build: gen
 	(cd obj_dir && make -j -f VVX_cache.mk)
 
 run: build
-	(cd obj_dir && ./VVX_cache)
+	(cd obj_dir && ./VVX_cache && perl -pi -e 's/[^[:ascii:]]//g;' trace.vcd)
 
 clean:
 	rm -rf obj_dir
