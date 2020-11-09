@@ -95,7 +95,6 @@ void CacheSim::run(){
       if(!cache_->core_req_valid && !cache_->core_rsp_valid){
         valid--; 
       }
-      this->display_hit_miss();
   }
 }
 
@@ -286,9 +285,5 @@ void CacheSim::get_dram_rsp(){
   std::cout << std::hex << "dram_rsp_data: " << cache_->dram_rsp_data << std::endl; 
   std::cout << std::hex << "dram_rsp_tag: " << cache_->dram_rsp_tag << std::endl;
   std::cout << std::hex << "dram_rsp_ready: " << cache_->dram_rsp_ready << std::endl;
-}
-
-void CacheSim::display_hit_miss(){
-  std::cout << std::hex << "Misses: " << cache_->misses << std::endl; 
 }
 

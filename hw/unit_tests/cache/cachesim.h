@@ -62,7 +62,6 @@ public:
   bool get_core_req_ready();
   bool get_core_rsp_ready();
   void get_dram_rsp();
-  void display_hit_miss(); 
 
 
 private:  
