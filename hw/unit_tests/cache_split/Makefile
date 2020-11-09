@@ -36,5 +36,8 @@ build: gen
 run: build
 	(cd obj_dir && ./VVX_cache)
 
+correct_trace: trace.vcd
+	perl -pi -e 's/[^[:ascii:]]//g;' trace.vcd
+
 clean:
 	rm -rf obj_dir
