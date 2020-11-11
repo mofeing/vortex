@@ -2,16 +2,16 @@
 
 module VX_tag_data_access #(
     parameter CACHE_ID          = 0,
-    parameter BANK_ID           = 0,   
-    parameter CORE_TAG_ID_BITS  = 0, 
+    parameter BANK_ID           = 0,
+    parameter CORE_TAG_ID_BITS  = 0,
     // Size of cache in bytes
-    parameter CACHE_SIZE        = 0, 
+    parameter CACHE_SIZE        = 0,
     // Size of line inside a bank in bytes
-    parameter BANK_LINE_SIZE    = 0, 
+    parameter BANK_LINE_SIZE    = 0,
     // Number of banks {1, 2, 4, 8,...}
-    parameter NUM_BANKS         = 0, 
+    parameter NUM_BANKS         = 0,
     // Size of a word in bytes
-    parameter WORD_SIZE         = 0, 
+    parameter WORD_SIZE         = 0,
 
      // Enable cache writeable
      parameter WRITE_ENABLE     = 0,
@@ -38,17 +38,17 @@ module VX_tag_data_access #(
 
     input wire                          force_request_miss_st1,
 
-    input wire[`LINE_SELECT_BITS-1:0]   readaddr_st1, 
+    input wire[`LINE_ADDR_WIDTH-1:0]   	readaddr_st1,
     input wire[`LINE_ADDR_WIDTH-1:0]    writeaddr_st1,
-    
+
     input wire                          valid_req_st1,
     input wire                          writefill_st1,
     input wire[`WORD_WIDTH-1:0]         writeword_st1,
     input wire[`BANK_LINE_WIDTH-1:0]    writedata_st1,
 
-`IGNORE_WARNINGS_BEGIN    
+`IGNORE_WARNINGS_BEGIN
     input wire                          mem_rw_st1,
-    input wire[WORD_SIZE-1:0]           mem_byteen_st1, 
+    input wire[WORD_SIZE-1:0]           mem_byteen_st1,
     input wire[`UP(`WORD_SELECT_WIDTH)-1:0] wordsel_st1,
 `IGNORE_WARNINGS_END
 
@@ -63,7 +63,7 @@ module VX_tag_data_access #(
     output wire                         mrvq_init_ready_state_st1
 );
     `UNUSED_VAR (stall)
-    
+
     wire                        qual_read_valid_st1;
     wire                        qual_read_dirty_st1;
     wire[BANK_LINE_SIZE-1:0]    qual_read_dirtyb_st1;
@@ -83,10 +83,35 @@ module VX_tag_data_access #(
     wire tags_match;
 
     wire real_writefill = valid_req_st1 && writefill_st1
-                       && ((~use_read_valid_st1) || (use_read_valid_st1 && ~tags_match)); 
+                       && ((~use_read_valid_st1) || (use_read_valid_st1 && ~tags_match));
 
     wire[`TAG_SELECT_BITS-1:0] writetag_st1 = writeaddr_st1[`TAG_LINE_ADDR_RNG];
-    wire[`LINE_SELECT_BITS-1:0] writeladdr_st1 = writeaddr_st1[`LINE_SELECT_BITS-1:0];
+    wire[`LINE_SELECT_BITS-1:0] writeladdr_st1;
+	wire[`LINE_SELECT_BITS-1:0] readladdr_st1;
+
+	generate
+		// L1 caches, which are subject to random placement
+		if (`LINE_SELECT_BITS == 6) begin
+			// Determine control bits
+			wire[11:0] benes_control = readaddr_st1[`LINE_SELECT_BITS+11:`LINE_SELECT_BITS] ^ {readaddr_st1[`LINE_ADDR_WIDTH-1:`LINE_SELECT_BITS+12], 4'b0};
+
+			VX_benes_permute_6 #() benes_permute_write(
+				.in(writeaddr_st1[`LINE_SELECT_BITS-1:0]),
+				.control(benes_control),
+				.out(writeladdr_st1[`LINE_SELECT_BITS-1:0])
+			);
+
+			VX_benes_permute_6 #() benes_permute_read(
+				.in(readaddr_st1[`LINE_SELECT_BITS-1:0]),
+				.control(benes_control),
+				.out(readladdr_st1[`LINE_SELECT_BITS-1:0])
+			);
+		end
+		else begin
+			assign writeladdr_st1[`LINE_SELECT_BITS-1:0] = writeaddr_st1[`LINE_SELECT_BITS-1:0];
+			assign readladdr_st1[`LINE_SELECT_BITS-1:0] = readaddr_st1[`LINE_SELECT_BITS-1:0];
+		end
+	endgenerate
 
     VX_tag_data_store #(
         .CACHE_SIZE     (CACHE_SIZE),
@@ -98,8 +123,8 @@ module VX_tag_data_access #(
         .reset       (reset),
         .stall_bank_pipe(stall_bank_pipe),
 
-        .read_addr   (readaddr_st1),
-        .read_valid  (qual_read_valid_st1),        
+        .read_addr   (readladdr_st1[`LINE_SELECT_BITS-1:0]),
+        .read_valid  (qual_read_valid_st1),
         .read_dirty  (qual_read_dirty_st1),
         .read_dirtyb (qual_read_dirtyb_st1),
         .read_tag    (qual_read_tag_st1),
@@ -119,7 +144,7 @@ module VX_tag_data_access #(
     assign use_read_tag_st1   = DRAM_ENABLE ? qual_read_tag_st1 : writetag_st1; // Tag is always the same in SM
     assign use_read_dirtyb_st1= qual_read_dirtyb_st1;
     assign use_read_data_st1  = qual_read_data_st1;
-    
+
     if (`WORD_SELECT_WIDTH != 0) begin
         wire [`WORD_WIDTH-1:0] readword = use_read_data_st1[wordsel_st1 * `WORD_WIDTH +: `WORD_WIDTH];
         for (genvar i = 0; i < WORD_SIZE; i++) begin
@@ -134,18 +159,18 @@ module VX_tag_data_access #(
     wire [`BANK_LINE_WORDS-1:0][WORD_SIZE-1:0] we;
     wire [`BANK_LINE_WIDTH-1:0] data_write;
 
-    wire should_write = mem_rw_st1 
-                     && valid_req_st1 
-                     && use_read_valid_st1 
-                     && ~miss_st1 
+    wire should_write = mem_rw_st1
+                     && valid_req_st1
+                     && use_read_valid_st1
+                     && ~miss_st1
                      && ~is_snp_st1
                      && ~real_writefill;
 
     for (genvar i = 0; i < `BANK_LINE_WORDS; i++) begin
-        wire normal_write = ((`WORD_SELECT_WIDTH == 0) || (wordsel_st1 == `UP(`WORD_SELECT_WIDTH)'(i))) 
+        wire normal_write = ((`WORD_SELECT_WIDTH == 0) || (wordsel_st1 == `UP(`WORD_SELECT_WIDTH)'(i)))
                          && should_write;
 
-        assign we[i] = real_writefill ? {WORD_SIZE{1'b1}} : 
+        assign we[i] = real_writefill ? {WORD_SIZE{1'b1}} :
                          normal_write ? mem_byteen_st1 :
                                         {WORD_SIZE{1'b0}};
 
@@ -162,11 +187,11 @@ module VX_tag_data_access #(
     wire req_invalid          = valid_req_st1 && ~is_snp_st1 && ~use_read_valid_st1 && ~writefill_st1;
     wire req_miss             = valid_req_st1 && ~is_snp_st1 &&  use_read_valid_st1 && ~writefill_st1 && ~tags_match;
     wire real_miss            = req_invalid || req_miss;
-    wire force_core_miss      = (force_request_miss_st1 && ~is_snp_st1 && ~writefill_st1 && valid_req_st1 && ~real_miss);    
+    wire force_core_miss      = (force_request_miss_st1 && ~is_snp_st1 && ~writefill_st1 && valid_req_st1 && ~real_miss);
     assign snp_to_mrvq_st1    = valid_req_st1 && is_snp_st1 && force_request_miss_st1;
-    
+
     // The second term is basically saying always make an entry ready if there's already antoher entry waiting, even if you yourself see a miss
-    assign mrvq_init_ready_state_st1 = snp_to_mrvq_st1 
+    assign mrvq_init_ready_state_st1 = snp_to_mrvq_st1
                                      || (force_request_miss_st1 && ~is_snp_st1 && ~writefill_st1 && valid_req_st1);
 
     assign miss_st1           = real_miss || snoop_hit_no_pending || force_core_miss;
@@ -179,8 +204,8 @@ module VX_tag_data_access #(
     assign invalidate_line    = snoop_hit_no_pending;
 
 `ifdef DBG_PRINT_CACHE_BANK
-    always @(posedge clk) begin        
-        if (valid_req_st1) begin             
+    always @(posedge clk) begin
+        if (valid_req_st1) begin
             if ((| use_write_enable)) begin
                 if (writefill_st1) begin
                     $display("%t: cache%0d:%0d store-fill: wid=%0d, PC=%0h, tag=%0h, rd=%0d, dirty=%b, blk_addr=%0d, tag_id=%0h, data=%0h", $time, CACHE_ID, BANK_ID, debug_wid_st1, debug_pc_st1, debug_tagid_st1, debug_rd_st1, dirty_st1, writeladdr_st1, writetag_st1, use_write_data);
@@ -192,9 +217,9 @@ module VX_tag_data_access #(
                 $display("%t: cache%0d:%0d store-miss: wid=%0d, PC=%0h, tag=%0h, rd=%0d, dirty=%b", $time, CACHE_ID, BANK_ID, debug_wid_st1, debug_pc_st1, debug_tagid_st1, debug_rd_st1, dirty_st1);
             end else begin
                 $display("%t: cache%0d:%0d store-read: wid=%0d, PC=%0h, tag=%0h, rd=%0d, dirty=%b, blk_addr=%0d, tag_id=%0h, wsel=%0d, data=%0h", $time, CACHE_ID, BANK_ID, debug_wid_st1, debug_pc_st1, debug_tagid_st1, debug_rd_st1, dirty_st1, readaddr_st1, qual_read_tag_st1, wordsel_st1, qual_read_data_st1);
-            end            
+            end
         end
-    end    
+    end
 `endif
 
 endmodule
