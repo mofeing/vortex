@@ -38,8 +38,10 @@ module VX_tag_data_access #(
 
     input wire                          force_request_miss_st1,
 
+`IGNORE_WARNINGS_BEGIN
     input wire[`LINE_ADDR_WIDTH-1:0]   	readaddr_st1,
     input wire[`LINE_ADDR_WIDTH-1:0]    writeaddr_st1,
+`IGNORE_WARNINGS_END
 
     input wire                          valid_req_st1,
     input wire                          writefill_st1,
