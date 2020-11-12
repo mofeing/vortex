@@ -12,4 +12,5 @@ RUN apt-get update; apt-get -y install \
 COPY ci/toolchain_install.sh /
 RUN /toolchain_install.sh -all
 
-RUN export VERILATOR_ROOT=/opt/verilator
+ENV VERILATOR_ROOT=/opt/verilator
+ENV PATH="/opt/verilator/bin:${PATH}"
