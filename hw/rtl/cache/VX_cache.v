@@ -231,7 +231,7 @@ module VX_cache #(
 
     // pass split_en only on L3 cache
     wire split_en_int;
-    assign split_en_int = (SPLIT_CAPABLE) ? split_en : 0;
+    assign split_en_int = (SPLIT_CAPABLE != 0) ? split_en : 0;
     VX_cache_core_req_bank_sel #(
         .BANK_LINE_SIZE (BANK_LINE_SIZE),
         .NUM_BANKS      (NUM_BANKS),

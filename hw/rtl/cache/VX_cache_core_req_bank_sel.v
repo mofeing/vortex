@@ -24,11 +24,28 @@ module VX_cache_core_req_bank_sel #(
     output wire                                          core_req_ready 
 );     
     reg  [NUM_BANKS-1:0][NUM_REQUESTS-1:0] per_bank_valid_r;
+    reg  [NUM_REQUESTS-1:0][`CLOG2(NUM_BANKS)-1:0] bank;
 
     generate
-        if (SPLIT_CAPABLE) begin
-            if (NUM_BANKS % NUM_REQUESTS == 0) $error("NUM_BANKS=%d must be multiple of NUM_REQUESTS=%d in order for cache splitting to work", NUM_BANKS, NUM_REQUESTS);
-            if (`ISPOW2(NUM_BANKS / NUM_REQUESTS)) $error("NUM_BANKS/NUM_REQUESTS=%d must be a power of 2", NUM_BANKS/NUM_REQUESTS);
+        if (SPLIT_CAPABLE != 0) begin
+            if (NUM_BANKS % NUM_REQUESTS != 0) $error("NUM_BANKS=%d must be multiple of NUM_REQUESTS=%d in order for cache splitting to work", NUM_BANKS, NUM_REQUESTS);
+            if (!`ISPOW2(NUM_BANKS / NUM_REQUESTS)) $error("NUM_BANKS/NUM_REQUESTS=%d must be a power of 2", NUM_BANKS/NUM_REQUESTS);
+
+            if (NUM_BANKS == NUM_REQUESTS) begin
+                always @(*) begin
+                    for (integer i = 0; i < NUM_REQUESTS; i++) begin
+                        if (split_en) bank[i] = i[`CLOG2(NUM_BANKS)-1:0];
+                        else bank[i] = core_req_addr[i][`BANK_SELECT_ADDR_RNG];
+                    end
+                end
+            end else begin
+                always @(*) begin
+                    for (integer i = 0; i < NUM_REQUESTS; i++) begin
+                        if (split_en) bank[i] = {i[`CLOG2(NUM_REQUESTS)-1:0], core_req_addr[i][`BANK_SELECT_ADDR_SPLIT]};
+                        else bank[i] = core_req_addr[i][`BANK_SELECT_ADDR_RNG];
+                    end
+                end
+            end
         end
     endgenerate
 
@@ -40,20 +57,14 @@ module VX_cache_core_req_bank_sel #(
             end
         end        
         assign core_req_ready = per_bank_ready;
-    end else if (SPLIT_CAPABLE) begin 
+    end else if (SPLIT_CAPABLE != 0) begin 
         reg [NUM_BANKS-1:0] per_bank_ready_sel;
         always @(*) begin
             per_bank_valid_r = 0;
             per_bank_ready_sel = {NUM_BANKS{1'b1}};
             for (integer i = 0; i < NUM_REQUESTS; i++) begin
-                if (split_en) begin
-                    reg [`CLOG2(NUM_BANKS)-1:0] bank = {i[`CLOG2(NUM_REQUESTS)-1:0], core_req_addr[i][`BANK_SELECT_ADDR_SPLIT]};
-                    per_bank_valid_r[bank][i] = core_req_valid[i];
-                    per_bank_ready_sel[bank] = 0;
-                end else begin
-                    per_bank_valid_r[core_req_addr[i][`BANK_SELECT_ADDR_RNG]][i] = core_req_valid[i];
-                    per_bank_ready_sel[core_req_addr[i][`BANK_SELECT_ADDR_RNG]] = 0;
-                end
+                per_bank_valid_r[bank[i]][i] = core_req_valid[i];
+                per_bank_ready_sel[bank[i]] = 0;
             end
         end        
         assign core_req_ready = & (per_bank_ready | per_bank_ready_sel);
