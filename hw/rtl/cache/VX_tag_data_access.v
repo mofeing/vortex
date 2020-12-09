@@ -95,18 +95,19 @@ module VX_tag_data_access #(
 		// L1 caches, which are subject to random placement
 		if (`LINE_SELECT_BITS == 6) begin
 			// Determine control bits
-			wire[11:0] benes_control = readaddr_st1[`LINE_SELECT_BITS+11:`LINE_SELECT_BITS] ^ {readaddr_st1[`LINE_ADDR_WIDTH-1:`LINE_SELECT_BITS+12], 4'b0};
-
-			VX_benes_permute_6 #() benes_permute_write(
-				.in(writeaddr_st1[`LINE_SELECT_BITS-1:0]),
-				.control(benes_control),
-				.out(writeladdr_st1[`LINE_SELECT_BITS-1:0])
-			);
-
-			VX_benes_permute_6 #() benes_permute_read(
-				.in(readaddr_st1[`LINE_SELECT_BITS-1:0]),
-				.control(benes_control),
-				.out(readladdr_st1[`LINE_SELECT_BITS-1:0])
+			// We know this because it is only in effect on LINE_SELECT_BITS=6
+			VX_random_placement #(
+				.INDEXBITS (`LINE_SELECT_BITS),
+				.ADDRESSBITS (26),
+				.CONTROLBITS (12)
+			) random_placer (
+				.clk(clk),
+				.reset(reset),
+				.reseed(reset),
+				.raddress(readaddr_st1),
+				.waddress(writeaddr_st1),
+				.rindex(readladdr_st1),
+				.windex(writeladdr_st1)
 			);
 		end
 		else begin
