@@ -147,6 +147,8 @@
 `define CSR_MIMPID      12'hF13
 `define CSR_MHARTID     12'hF14
 
+`define CSR_CACHE_SPLIT	12'hE00
+
 // Pipeline Queues ============================================================
 
 // Size of instruction queue

@@ -50,6 +50,9 @@ int vx_num_cycles();
 // Return the number of instructions
 int vx_num_instrs();
 
+// Return if L3 cache-split is activated
+int vx_cache_split();
+
 #define __if(b) vx_split(b); \
                 if (b) 
 

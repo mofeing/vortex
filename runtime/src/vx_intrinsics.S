@@ -91,3 +91,9 @@ vx_num_cycles:
 vx_num_instrs:
     csrr a0, CSR_INSTRET
     ret
+
+.type vx_cache_split, @function
+.global vx_cache_split
+vx_cache_split:
+    csrr a0, CSR_CACHE_SPLIT
+    ret
