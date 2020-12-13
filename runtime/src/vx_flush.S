@@ -5,11 +5,6 @@
 .type vx_flush_l1, @function
 .global vx_flush_l1
 vx_flush_l1:
-  ret
-
-.type __vx_flush_l1, @function
-.global __vx_flush_l1
-__vx_flush_l1:
   li t0, DCACHE_SIZE
 loop:
   addi t0, t0, -DBANK_LINE_SIZE; # t0 = t0 - DBANK_LINE_SIZE

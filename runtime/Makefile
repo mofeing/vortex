@@ -13,7 +13,7 @@ LDFLAGS +=
 
 PROJECT = libvortexrt
 
-SRCS = ./src/vx_start.S ./src/vx_intrinsics.S ./src/vx_print.S ./src/vx_print.c ./src/vx_spawn.c ./src/vx_flush.S
+SRCS = ./src/vx_start.S ./src/vx_intrinsics.S ./src/vx_print.S ./src/vx_print.c ./src/vx_spawn.c ./src/vx_flush.S ./src/vx_flush.c
 
 OBJS := $(addsuffix .o, $(notdir $(SRCS)))
 

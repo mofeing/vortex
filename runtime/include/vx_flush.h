@@ -8,6 +8,9 @@ extern "C" {
 // Flush all L1-Dcaches
 void vx_flush_l1();
 
+// Send reseed trigger to L1 Dcache
+void vx_prng_reseed();
+
 #ifdef __cplusplus
 }
 #endif
