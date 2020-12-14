@@ -11,6 +11,9 @@ void vx_flush_l1();
 // Send reseed trigger to L1 Dcache
 void vx_prng_reseed();
 
+// Set cache-split state
+void vx_set_cache_split(int state);
+
 #ifdef __cplusplus
 }
 #endif

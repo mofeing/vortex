@@ -148,6 +148,7 @@
 `define CSR_MHARTID     12'hF14
 
 `define CSR_CACHE_SPLIT	12'hE00
+`define CSR_PRNG_RESEED	12'hE01
 
 // Pipeline Queues ============================================================
 
