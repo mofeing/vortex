@@ -1,11 +1,11 @@
 LIB_PATH = ../../../runtime
 
-COMP     = /home/priya/dev/riscv_vec/riscv-gnu/bin/riscv32-unknown-elf-gcc
+COMP     = /opt/riscv-gnu-toolchain/bin/riscv32-unknown-elf-gcc
 
 CC_FLAGS = -ffreestanding -O0 -Wl,--gc-sections -nostartfiles -nostdlib -nostartfiles -nodefaultlibs -Wl,-Bstatic,-T,$(LIB_PATH)/startup/vx_link.ld -march=rv32imv -mabi=ilp32
 
-DMP  = /home/priya/dev/riscv_vec/riscv-gnu/bin/riscv32-unknown-elf-objdump
-CPY  = /home/priya/dev/riscv_vec/riscv-gnu/bin/riscv32-unknown-elf-objcopy
+DMP  = /opt/riscv-gnu-toolchain/bin/riscv32-unknown-elf-objdump
+CPY  = /opt/riscv-gnu-toolchain/bin/riscv32-unknown-elf-objcopy
 
 # VX_STR  = ../../startup/vx_start.S
 
@@ -16,7 +16,7 @@ VX_IO   = $(LIB_PATH)/io/vx_io.S $(LIB_PATH)/io/vx_io.c
 VX_API  = $(LIB_PATH)/vx_api/vx_api.c
 VX_FIO  = $(LIB_PATH)/fileio/fileio.S
 VX_VEC  = vx_vec_saxpy.s       #float --> int
-LIBS    = /home/priya/dev/riscv_vec/riscv-gnu/riscv32-unknown-elf/lib/libc.a /home/priya/dev/riscv_vec/riscv-gnu/riscv32-unknown-elf/lib/libstdc++.a -static-libgcc -lgcc
+LIBS    = /opt/riscv-gnu-toolchain/riscv32-unknown-elf/lib/libc.a /opt/riscv-gnu-toolchain/riscv32-unknown-elf/lib/libstdc++.a -static-libgcc -lgcc
 
 VX_MAIN = vx_vec_saxpy
 
