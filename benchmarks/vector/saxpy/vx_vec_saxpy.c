@@ -1,8 +1,8 @@
+#include "vx_vec_saxpy.h"
+#include "../../../runtime/include/vx_intrinsics.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../../runtime/intrinsics/vx_intrinsics.h"
-#include "vx_vec_saxpy.h"
 
 //---------------------------------------------------------------
 /* # void saxpy(size_t n, const float a, const float *x, float *y)
@@ -18,23 +18,25 @@ int main()
 
     int n = 64; //#define NUM_DATA 65536
 
-    int *a = (int*)malloc(sizeof(int) * n); 
-    int *b = (int*)malloc(sizeof(int) * n); 
-    int *c = (int*)malloc(sizeof(int) * n); //verification
+    int *a = (int *)malloc(sizeof(int) * n);
+    int *b = (int *)malloc(sizeof(int) * n);
+    int *c = (int *)malloc(sizeof(int) * n); //verification
 
     //  float factor = ((float)rand()/(float)(RAND_MAX)) * 100.0;
-    int factor = ((float)rand()/(RAND_MAX)) * 100.0;
+    int factor = ((float)rand() / (RAND_MAX)) * 100.0;
 
-    for (int i = 0; i < n; ++i) { 
-        a[i] = ((float)rand()/(RAND_MAX)) * 100.0;
-        b[i] = 0; 
+    for (int i = 0; i < n; ++i)
+    {
+        a[i] = ((float)rand() / (RAND_MAX)) * 100.0;
+        b[i] = 0;
         c[i] = 0;
     }
-  //; c[i] = 2;}
+    //; c[i] = 2;}
 
 #if 1
     printf("saxpy\nfactor: %d\na[%d]: ", factor, n);
-    for(int i = 0; i < n; ++i) printf("%d ", a[i]);
+    for (int i = 0; i < n; ++i)
+        printf("%d ", a[i]);
 //    printf("\nb[%d]: ", n);
 //    for(int i = 0; i < n; ++i) printf("%d \n", b[i]);
 #endif
@@ -57,22 +59,22 @@ int main()
     for(int i = 0; i < n; ++i) printf("%d ", b[i]);
 #endif
 
-    for(int i = 0; i < n; ++i) 
+    for (int i = 0; i < n; ++i)
     {
-        if(b[i] != ((a[i] * factor) + c[i])) 
+        if (b[i] != ((a[i] * factor) + c[i]))
         {
-           printf("\n<saxpy> FAILED at <index: %d>! \n", i);
-           return 1;   
+            printf("\n<saxpy> FAILED at <index: %d>! \n", i);
+            return 1;
         }
     }
-    
+
     printf("\nPASSED.......................... <saxpy> \n");
 
-
-    free(a); free(b); free(c);
+    free(a);
+    free(b);
+    free(c);
 
     vx_tmc(0);
 
     return 0;
-
 }
