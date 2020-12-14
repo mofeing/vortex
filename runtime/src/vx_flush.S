@@ -20,6 +20,6 @@ vx_prng_reseed:
 
 .type vx_set_cache_split, @function
 .global vx_set_cache_split
-vx_cache_split:
-  csrrwi t0, CSR_CACHE_SPLIT, a0
+vx_set_cache_split:
+  csrrw t0, CSR_CACHE_SPLIT, a0
   ret
