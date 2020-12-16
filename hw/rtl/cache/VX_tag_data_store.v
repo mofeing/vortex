@@ -2,11 +2,11 @@
 
 module VX_tag_data_store #(
     // Size of cache in bytes
-    parameter CACHE_SIZE                    = 0, 
+    parameter CACHE_SIZE                    = 0,
     // Size of line inside a bank in bytes
-    parameter BANK_LINE_SIZE                = 0, 
-    // Number of banks {1, 2, 4, 8,...} 
-    parameter NUM_BANKS                     = 0, 
+    parameter BANK_LINE_SIZE                = 0,
+    // Number of banks {1, 2, 4, 8,...}
+    parameter NUM_BANKS                     = 0,
     // Size of a word in bytes
     parameter WORD_SIZE                     = 0
 ) (
@@ -27,15 +27,15 @@ module VX_tag_data_store #(
     input  wire[`LINE_SELECT_BITS-1:0]      write_addr,
     input  wire[`TAG_SELECT_BITS-1:0]       tag_index,
     input  wire[`BANK_LINE_WIDTH-1:0]       write_data,
-    input  wire                             fill_sent    
+    input  wire                             fill_sent
 );
 
-    reg [`BANK_LINE_WORDS-1:0][WORD_SIZE-1:0][7:0] data [`BANK_LINE_COUNT-1:0];    
+    reg [`BANK_LINE_WORDS-1:0][WORD_SIZE-1:0][7:0] data [`BANK_LINE_COUNT-1:0];
     reg [`TAG_SELECT_BITS-1:0]                      tag [`BANK_LINE_COUNT-1:0];
     reg [`BANK_LINE_WORDS-1:0][WORD_SIZE-1:0]     dirtyb[`BANK_LINE_COUNT-1:0];
-    reg [`BANK_LINE_COUNT-1:0]                     dirty;   
-    reg [`BANK_LINE_COUNT-1:0]                     valid;    
-    
+    reg [`BANK_LINE_COUNT-1:0]                     dirty;
+    reg [`BANK_LINE_COUNT-1:0]                     valid;
+
     assign read_valid  = valid  [read_addr];
     assign read_dirty  = dirty  [read_addr];
     assign read_dirtyb = dirtyb [read_addr];

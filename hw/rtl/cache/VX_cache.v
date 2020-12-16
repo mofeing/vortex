@@ -59,12 +59,16 @@ module VX_cache #(
     parameter SNP_REQ_TAG_WIDTH             = 28,
 
     // Snooping forward tag width
-    parameter SNP_FWD_TAG_WIDTH             = 1
+    parameter SNP_FWD_TAG_WIDTH             = 1,
+
+	// Enable random placement
+	parameter IS_RANDOM_PLACED				= 0
  ) (
     `SCOPE_SIGNALS_CACHE_IO
 
     input wire clk,
     input wire reset,
+	input wire reseed,
 
     // Core request
     input wire [NUM_REQUESTS-1:0]                           core_req_valid,
@@ -375,12 +379,14 @@ module VX_cache #(
             .SNOOP_FORWARDING   (SNOOP_FORWARDING),
             .CORE_TAG_WIDTH     (CORE_TAG_WIDTH),
             .CORE_TAG_ID_BITS   (CORE_TAG_ID_BITS),
-            .SNP_REQ_TAG_WIDTH  (SNP_REQ_TAG_WIDTH)
+            .SNP_REQ_TAG_WIDTH  (SNP_REQ_TAG_WIDTH),
+			.IS_RANDOM_PLACED   (IS_RANDOM_PLACED)
         ) bank (
             `SCOPE_SIGNALS_CACHE_BANK_BIND
 
             .clk                     (clk),
             .reset                   (reset),
+			.reseed					 (reseed),
             // Core request
             .core_req_valid          (curr_bank_core_req_valid),
             .core_req_rw             (curr_bank_core_req_rw),

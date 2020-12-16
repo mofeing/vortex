@@ -48,12 +48,16 @@ module VX_bank #(
     parameter CORE_TAG_ID_BITS              = 0,
 
     // Snooping request tag width
-    parameter SNP_REQ_TAG_WIDTH             = 0
+    parameter SNP_REQ_TAG_WIDTH             = 0,
+
+	// Enable random placement
+	parameter IS_RANDOM_PLACED				= 0
 ) (
     `SCOPE_SIGNALS_CACHE_IO
 
     input wire clk,
     input wire reset,
+	input wire reseed,
 
     // Core Request
     input wire [NUM_REQUESTS-1:0]                               core_req_valid,
@@ -398,10 +402,12 @@ module VX_bank #(
         .NUM_BANKS      (NUM_BANKS),
         .WORD_SIZE      (WORD_SIZE),
         .DRAM_ENABLE    (DRAM_ENABLE),
-        .WRITE_ENABLE   (WRITE_ENABLE)
+        .WRITE_ENABLE   (WRITE_ENABLE),
+		.IS_RANDOM_PLACED (IS_RANDOM_PLACED)
      ) tag_data_access (
         .clk            (clk),
         .reset          (reset),
+		.reseed			(reseed),
 
     `ifdef DBG_CORE_REQ_INFO
         .debug_pc_st1   (debug_pc_st1),

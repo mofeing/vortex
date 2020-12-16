@@ -13,14 +13,20 @@ module VX_tag_data_access #(
     // Size of a word in bytes
     parameter WORD_SIZE         = 0,
 
-     // Enable cache writeable
-     parameter WRITE_ENABLE     = 0,
+    // Enable cache writeable
+    parameter WRITE_ENABLE     = 0,
 
-     // Enable dram update
-     parameter DRAM_ENABLE      = 0
+    // Enable dram update
+    parameter DRAM_ENABLE      = 0,
+
+	// Enable random placement
+	parameter IS_RANDOM_PLACED = 0
 ) (
     input wire                          clk,
     input wire                          reset,
+`IGNORE_WARNINGS_BEGIN
+	input wire 							reseed,
+`IGNORE_WARNINGS_END
 
 `ifdef DBG_CORE_REQ_INFO
 `IGNORE_WARNINGS_BEGIN
@@ -84,6 +90,8 @@ module VX_tag_data_access #(
     wire invalidate_line;
     wire tags_match;
 
+	wire invalidate_store;
+
     wire real_writefill = valid_req_st1 && writefill_st1
                        && ((~use_read_valid_st1) || (use_read_valid_st1 && ~tags_match));
 
@@ -93,7 +101,7 @@ module VX_tag_data_access #(
 
 	generate
 		// L1 caches, which are subject to random placement
-		if (`LINE_SELECT_BITS == 6) begin
+		if (`LINE_SELECT_BITS == 6 && IS_RANDOM_PLACED) begin
 			// Determine control bits
 			// We know this because it is only in effect on LINE_SELECT_BITS=6
 			VX_random_placement #(
@@ -103,16 +111,19 @@ module VX_tag_data_access #(
 			) random_placer (
 				.clk(clk),
 				.reset(reset),
-				.reseed(reset),
+				.reseed(reseed),
 				.raddress(readaddr_st1),
 				.waddress(writeaddr_st1),
 				.rindex(readladdr_st1),
 				.windex(writeladdr_st1)
 			);
+
+			assign invalidate_store = reset | reseed;
 		end
 		else begin
 			assign writeladdr_st1[`LINE_SELECT_BITS-1:0] = writeaddr_st1[`LINE_SELECT_BITS-1:0];
 			assign readladdr_st1[`LINE_SELECT_BITS-1:0] = readaddr_st1[`LINE_SELECT_BITS-1:0];
+			assign invalidate_store = reset;
 		end
 	endgenerate
 
@@ -123,7 +134,7 @@ module VX_tag_data_access #(
         .WORD_SIZE      (WORD_SIZE)
     ) tag_data_store (
         .clk         (clk),
-        .reset       (reset),
+        .reset       (invalidate_store),
         .stall_bank_pipe(stall_bank_pipe),
 
         .read_addr   (readladdr_st1[`LINE_SELECT_BITS-1:0]),

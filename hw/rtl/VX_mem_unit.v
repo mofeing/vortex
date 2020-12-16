@@ -7,8 +7,9 @@ module VX_mem_unit # (
 
     input wire              clk,
     input wire              reset,
+	input wire 				reseed,
 
-    // Core <-> Dcache    
+    // Core <-> Dcache
     VX_cache_core_req_if    core_dcache_req_if,
     VX_cache_core_rsp_if    core_dcache_rsp_if,
 
@@ -18,8 +19,8 @@ module VX_mem_unit # (
     VX_cache_snp_req_if     dcache_snp_req_if,
     VX_cache_snp_rsp_if     dcache_snp_rsp_if,
 
-    // Core <-> Icache    
-    VX_cache_core_req_if    core_icache_req_if,  
+    // Core <-> Icache
+    VX_cache_core_req_if    core_icache_req_if,
     VX_cache_core_rsp_if    core_icache_rsp_if,
 
     // Dram <-> Icache
@@ -27,15 +28,15 @@ module VX_mem_unit # (
     VX_cache_dram_rsp_if    icache_dram_rsp_if
 );
     VX_cache_core_req_if #(
-        .NUM_REQUESTS       (`DNUM_REQUESTS), 
-        .WORD_SIZE          (`DWORD_SIZE), 
+        .NUM_REQUESTS       (`DNUM_REQUESTS),
+        .WORD_SIZE          (`DWORD_SIZE),
         .CORE_TAG_WIDTH     (`DCORE_TAG_WIDTH),
         .CORE_TAG_ID_BITS   (`DCORE_TAG_ID_BITS)
     ) core_dcache_req_qual_if(), core_smem_req_if();
 
     VX_cache_core_rsp_if #(
-        .NUM_REQUESTS       (`DNUM_REQUESTS), 
-        .WORD_SIZE          (`DWORD_SIZE), 
+        .NUM_REQUESTS       (`DNUM_REQUESTS),
+        .WORD_SIZE          (`DWORD_SIZE),
         .CORE_TAG_WIDTH     (`DCORE_TAG_WIDTH),
         .CORE_TAG_ID_BITS   (`DCORE_TAG_ID_BITS)
     ) core_dcache_rsp_qual_if(), core_smem_rsp_if();
@@ -45,12 +46,12 @@ module VX_mem_unit # (
     wire smem_req_select = (| core_dcache_req_if.valid) ? is_smem_addr : 0;
     wire smem_rsp_select = (| core_smem_rsp_if.valid);
 
-    VX_dcache_arb dcache_smem_arb (        
+    VX_dcache_arb dcache_smem_arb (
         .core_req_in_if   (core_dcache_req_if),
         .core_req_out0_if (core_dcache_req_qual_if),
-        .core_req_out1_if (core_smem_req_if),    
+        .core_req_out1_if (core_smem_req_if),
         .core_rsp_in0_if  (core_dcache_rsp_qual_if),
-        .core_rsp_in1_if  (core_smem_rsp_if),    
+        .core_rsp_in1_if  (core_smem_rsp_if),
         .core_rsp_out_if  (core_dcache_rsp_if),
         .select_req       (smem_req_select),
         .select_rsp       (smem_rsp_select)
@@ -76,19 +77,21 @@ module VX_mem_unit # (
         .WRITE_ENABLE           (1),
         .CORE_TAG_WIDTH         (`DCORE_TAG_WIDTH),
         .CORE_TAG_ID_BITS       (`DCORE_TAG_ID_BITS),
-        .DRAM_TAG_WIDTH         (`SDRAM_TAG_WIDTH)
+        .DRAM_TAG_WIDTH         (`SDRAM_TAG_WIDTH),
+		.IS_RANDOM_PLACED		(0)
     ) smem (
         `SCOPE_SIGNALS_CACHE_UNBIND
-        
+
         .clk                (clk),
         .reset              (reset),
+		.reseed				(0),
 
         // Core request
         .core_req_valid     (core_smem_req_if.valid),
         .core_req_rw        (core_smem_req_if.rw),
         .core_req_byteen    (core_smem_req_if.byteen),
         .core_req_addr      (core_smem_req_if.addr),
-        .core_req_data      (core_smem_req_if.data),        
+        .core_req_data      (core_smem_req_if.data),
         .core_req_tag       (core_smem_req_if.tag),
         .core_req_ready     (core_smem_req_if.ready),
 
@@ -103,12 +106,12 @@ module VX_mem_unit # (
 
         // DRAM request
         `UNUSED_PIN (dram_req_valid),
-        `UNUSED_PIN (dram_req_rw),        
-        `UNUSED_PIN (dram_req_byteen),        
+        `UNUSED_PIN (dram_req_rw),
+        `UNUSED_PIN (dram_req_byteen),
         `UNUSED_PIN (dram_req_addr),
         `UNUSED_PIN (dram_req_data),
         `UNUSED_PIN (dram_req_tag),
-        .dram_req_ready     (0),       
+        .dram_req_ready     (0),
 
         // DRAM response
         .dram_rsp_valid     (0),
@@ -130,14 +133,14 @@ module VX_mem_unit # (
 
         // Snoop forward out
         `UNUSED_PIN (snp_fwdout_valid),
-        `UNUSED_PIN (snp_fwdout_addr),    
+        `UNUSED_PIN (snp_fwdout_addr),
         `UNUSED_PIN (snp_fwdout_invalidate),
-        `UNUSED_PIN (snp_fwdout_tag),    
+        `UNUSED_PIN (snp_fwdout_tag),
         .snp_fwdout_ready   (0),
 
          // Snoop forward in
         .snp_fwdin_valid    (0),
-        .snp_fwdin_tag      (0),    
+        .snp_fwdin_tag      (0),
         `UNUSED_PIN (snp_fwdin_ready)
     );
 
@@ -162,19 +165,21 @@ module VX_mem_unit # (
         .CORE_TAG_WIDTH         (`DCORE_TAG_WIDTH),
         .CORE_TAG_ID_BITS       (`DCORE_TAG_ID_BITS),
         .DRAM_TAG_WIDTH         (`DDRAM_TAG_WIDTH),
-        .SNP_REQ_TAG_WIDTH      (`DSNP_TAG_WIDTH)
+        .SNP_REQ_TAG_WIDTH      (`DSNP_TAG_WIDTH),
+		.IS_RANDOM_PLACED		(1)
     ) dcache (
         `SCOPE_SIGNALS_CACHE_BIND
-        
+
         .clk                (clk),
         .reset              (reset),
+		.reseed				(reseed),
 
         // Core req
         .core_req_valid     (core_dcache_req_qual_if.valid),
         .core_req_rw        (core_dcache_req_qual_if.rw),
         .core_req_byteen    (core_dcache_req_qual_if.byteen),
         .core_req_addr      (core_dcache_req_qual_if.addr),
-        .core_req_data      (core_dcache_req_qual_if.data),        
+        .core_req_data      (core_dcache_req_qual_if.data),
         .core_req_tag       (core_dcache_req_qual_if.tag),
         .core_req_ready     (core_dcache_req_qual_if.ready),
 
@@ -189,15 +194,15 @@ module VX_mem_unit # (
 
         // DRAM request
         .dram_req_valid     (dcache_dram_req_if.valid),
-        .dram_req_rw        (dcache_dram_req_if.rw),        
-        .dram_req_byteen    (dcache_dram_req_if.byteen),        
+        .dram_req_rw        (dcache_dram_req_if.rw),
+        .dram_req_byteen    (dcache_dram_req_if.byteen),
         .dram_req_addr      (dcache_dram_req_if.addr),
         .dram_req_data      (dcache_dram_req_if.data),
         .dram_req_tag       (dcache_dram_req_if.tag),
         .dram_req_ready     (dcache_dram_req_if.ready),
 
         // DRAM response
-        .dram_rsp_valid     (dcache_dram_rsp_if.valid),        
+        .dram_rsp_valid     (dcache_dram_rsp_if.valid),
         .dram_rsp_data      (dcache_dram_rsp_if.data),
         .dram_rsp_tag       (dcache_dram_rsp_if.tag),
         .dram_rsp_ready     (dcache_dram_rsp_if.ready),
@@ -213,17 +218,17 @@ module VX_mem_unit # (
         .snp_rsp_valid      (dcache_snp_rsp_if.valid),
         .snp_rsp_tag        (dcache_snp_rsp_if.tag),
         .snp_rsp_ready      (dcache_snp_rsp_if.ready),
-        
+
         // Snoop forward out
         `UNUSED_PIN (snp_fwdout_valid),
-        `UNUSED_PIN (snp_fwdout_addr),    
+        `UNUSED_PIN (snp_fwdout_addr),
         `UNUSED_PIN (snp_fwdout_invalidate),
-        `UNUSED_PIN (snp_fwdout_tag),    
+        `UNUSED_PIN (snp_fwdout_tag),
         .snp_fwdout_ready   (0),
 
          // Snoop forward in
         .snp_fwdin_valid    (0),
-        .snp_fwdin_tag      (0),    
+        .snp_fwdin_tag      (0),
         `UNUSED_PIN (snp_fwdin_ready)
     );
 
@@ -247,19 +252,21 @@ module VX_mem_unit # (
         .WRITE_ENABLE           (0),
         .CORE_TAG_WIDTH         (`ICORE_TAG_WIDTH),
         .CORE_TAG_ID_BITS       (`ICORE_TAG_ID_BITS),
-        .DRAM_TAG_WIDTH         (`IDRAM_TAG_WIDTH)
+        .DRAM_TAG_WIDTH         (`IDRAM_TAG_WIDTH),
+		.IS_RANDOM_PLACED		(0)
     ) icache (
         `SCOPE_SIGNALS_CACHE_UNBIND
 
         .clk                   (clk),
         .reset                 (reset),
+		.reseed				   (0),
 
         // Core request
         .core_req_valid        (core_icache_req_if.valid),
         .core_req_rw           (core_icache_req_if.rw),
         .core_req_byteen       (core_icache_req_if.byteen),
         .core_req_addr         (core_icache_req_if.addr),
-        .core_req_data         (core_icache_req_if.data),        
+        .core_req_data         (core_icache_req_if.data),
         .core_req_tag          (core_icache_req_if.tag),
         .core_req_ready        (core_icache_req_if.ready),
 
@@ -274,15 +281,15 @@ module VX_mem_unit # (
 
         // DRAM Req
         .dram_req_valid        (icache_dram_req_if.valid),
-        .dram_req_rw           (icache_dram_req_if.rw),        
-        .dram_req_byteen       (icache_dram_req_if.byteen),        
+        .dram_req_rw           (icache_dram_req_if.rw),
+        .dram_req_byteen       (icache_dram_req_if.byteen),
         .dram_req_addr         (icache_dram_req_if.addr),
         .dram_req_data         (icache_dram_req_if.data),
         .dram_req_tag          (icache_dram_req_if.tag),
-        .dram_req_ready        (icache_dram_req_if.ready),        
+        .dram_req_ready        (icache_dram_req_if.ready),
 
         // DRAM response
-        .dram_rsp_valid        (icache_dram_rsp_if.valid),        
+        .dram_rsp_valid        (icache_dram_rsp_if.valid),
         .dram_rsp_data         (icache_dram_rsp_if.data),
         .dram_rsp_tag          (icache_dram_rsp_if.tag),
         .dram_rsp_ready        (icache_dram_rsp_if.ready),
@@ -301,14 +308,14 @@ module VX_mem_unit # (
 
         // Snoop forward out
         `UNUSED_PIN (snp_fwdout_valid),
-        `UNUSED_PIN (snp_fwdout_addr),   
-        `UNUSED_PIN (snp_fwdout_invalidate), 
-        `UNUSED_PIN (snp_fwdout_tag),    
+        `UNUSED_PIN (snp_fwdout_addr),
+        `UNUSED_PIN (snp_fwdout_invalidate),
+        `UNUSED_PIN (snp_fwdout_tag),
         .snp_fwdout_ready      (0),
 
          // Snoop forward in
         .snp_fwdin_valid       (0),
-        .snp_fwdin_tag         (0),    
+        .snp_fwdin_tag         (0),
         `UNUSED_PIN (snp_fwdin_ready)
     );
 

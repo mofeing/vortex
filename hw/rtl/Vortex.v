@@ -13,15 +13,15 @@ module Vortex (
 
     // DRAM request
     output wire                             dram_req_valid,
-    output wire                             dram_req_rw,    
-    output wire [`VX_DRAM_BYTEEN_WIDTH-1:0] dram_req_byteen,    
+    output wire                             dram_req_rw,
+    output wire [`VX_DRAM_BYTEEN_WIDTH-1:0] dram_req_byteen,
     output wire [`VX_DRAM_ADDR_WIDTH-1:0]   dram_req_addr,
     output wire [`VX_DRAM_LINE_WIDTH-1:0]   dram_req_data,
     output wire [`VX_DRAM_TAG_WIDTH-1:0]    dram_req_tag,
     input  wire                             dram_req_ready,
 
-    // DRAM response    
-    input wire                              dram_rsp_valid,        
+    // DRAM response
+    input wire                              dram_rsp_valid,
     input wire [`VX_DRAM_LINE_WIDTH-1:0]    dram_rsp_data,
     input wire [`VX_DRAM_TAG_WIDTH-1:0]     dram_rsp_tag,
     output wire                             dram_rsp_ready,
@@ -31,20 +31,20 @@ module Vortex (
     input wire [`VX_DRAM_ADDR_WIDTH-1:0]    snp_req_addr,
     input wire                              snp_req_invalidate,
     input wire [`VX_SNP_TAG_WIDTH-1:0]      snp_req_tag,
-    output wire                             snp_req_ready, 
+    output wire                             snp_req_ready,
 
     // Snoop response
     output wire                             snp_rsp_valid,
     output wire [`VX_SNP_TAG_WIDTH-1:0]     snp_rsp_tag,
-    input wire                              snp_rsp_ready,     
+    input wire                              snp_rsp_ready,
 
     // I/O request
     output wire [`NUM_THREADS-1:0]          io_req_valid,
-    output wire                             io_req_rw,  
-    output wire [`NUM_THREADS-1:0][3:0]     io_req_byteen,  
+    output wire                             io_req_rw,
+    output wire [`NUM_THREADS-1:0][3:0]     io_req_byteen,
     output wire [`NUM_THREADS-1:0][29:0]    io_req_addr,
-    output wire [`NUM_THREADS-1:0][31:0]    io_req_data,    
-    output wire [`VX_CORE_TAG_WIDTH-1:0]    io_req_tag,    
+    output wire [`NUM_THREADS-1:0][31:0]    io_req_data,
+    output wire [`VX_CORE_TAG_WIDTH-1:0]    io_req_tag,
     input wire                              io_req_ready,
 
     // I/O response
@@ -67,7 +67,7 @@ module Vortex (
     input wire                              csr_io_rsp_ready,
 
     // Status
-    output wire                             busy, 
+    output wire                             busy,
     output wire                             ebreak
 );
     if (`NUM_CLUSTERS == 1) begin
@@ -83,7 +83,7 @@ module Vortex (
 
             .clk                (clk),
             .reset              (reset),
-            
+
             .dram_req_valid     (dram_req_valid),
             .dram_req_rw        (dram_req_rw),
             .dram_req_byteen    (dram_req_byteen),
@@ -92,7 +92,7 @@ module Vortex (
             .dram_req_tag       (dram_req_tag),
             .dram_req_ready     (dram_req_ready),
 
-            .dram_rsp_valid     (dram_rsp_valid),            
+            .dram_rsp_valid     (dram_rsp_valid),
             .dram_rsp_data      (dram_rsp_data),
             .dram_rsp_tag       (dram_rsp_tag),
             .dram_rsp_ready     (dram_rsp_ready),
@@ -115,7 +115,7 @@ module Vortex (
             .io_req_tag         (io_req_tag),
             .io_req_ready       (io_req_ready),
 
-            .io_rsp_valid       (io_rsp_valid),            
+            .io_rsp_valid       (io_rsp_valid),
             .io_rsp_data        (io_rsp_data),
             .io_rsp_tag         (io_rsp_tag),
             .io_rsp_ready       (io_rsp_ready),
@@ -127,7 +127,7 @@ module Vortex (
             .csr_io_req_data    (csr_io_req_data),
             .csr_io_req_ready   (csr_io_req_ready),
 
-            .csr_io_rsp_valid   (csr_io_rsp_valid),            
+            .csr_io_rsp_valid   (csr_io_rsp_valid),
             .csr_io_rsp_data    (csr_io_rsp_data),
             .csr_io_rsp_ready   (csr_io_rsp_ready),
 
@@ -138,16 +138,16 @@ module Vortex (
     end else begin
 
         wire [`NUM_CLUSTERS-1:0]                         per_cluster_dram_req_valid;
-        wire [`NUM_CLUSTERS-1:0]                         per_cluster_dram_req_rw;        
-        wire [`NUM_CLUSTERS-1:0][`L2DRAM_BYTEEN_WIDTH-1:0] per_cluster_dram_req_byteen;   
+        wire [`NUM_CLUSTERS-1:0]                         per_cluster_dram_req_rw;
+        wire [`NUM_CLUSTERS-1:0][`L2DRAM_BYTEEN_WIDTH-1:0] per_cluster_dram_req_byteen;
         wire [`NUM_CLUSTERS-1:0][`L2DRAM_ADDR_WIDTH-1:0] per_cluster_dram_req_addr;
         wire [`NUM_CLUSTERS-1:0][`L2DRAM_LINE_WIDTH-1:0] per_cluster_dram_req_data;
         wire [`NUM_CLUSTERS-1:0][`L2DRAM_TAG_WIDTH-1:0]  per_cluster_dram_req_tag;
         wire                                            l3_core_req_ready;
-  
-        wire [`NUM_CLUSTERS-1:0]                         per_cluster_dram_rsp_valid;        
+
+        wire [`NUM_CLUSTERS-1:0]                         per_cluster_dram_rsp_valid;
         wire [`NUM_CLUSTERS-1:0][`L2DRAM_LINE_WIDTH-1:0] per_cluster_dram_rsp_data;
-        wire [`NUM_CLUSTERS-1:0][`L2DRAM_TAG_WIDTH-1:0]  per_cluster_dram_rsp_tag; 
+        wire [`NUM_CLUSTERS-1:0][`L2DRAM_TAG_WIDTH-1:0]  per_cluster_dram_rsp_tag;
         wire [`NUM_CLUSTERS-1:0]                         per_cluster_dram_rsp_ready;
 
         wire [`NUM_CLUSTERS-1:0]                         per_cluster_snp_req_valid;
@@ -164,7 +164,7 @@ module Vortex (
         wire [`NUM_CLUSTERS-1:0]                         per_cluster_io_req_rw;
         wire [`NUM_CLUSTERS-1:0][`NUM_THREADS-1:0][3:0]  per_cluster_io_req_byteen;
         wire [`NUM_CLUSTERS-1:0][`NUM_THREADS-1:0][29:0] per_cluster_io_req_addr;
-        wire [`NUM_CLUSTERS-1:0][`NUM_THREADS-1:0][31:0] per_cluster_io_req_data;        
+        wire [`NUM_CLUSTERS-1:0][`NUM_THREADS-1:0][31:0] per_cluster_io_req_data;
         wire [`NUM_CLUSTERS-1:0][`L2CORE_TAG_WIDTH-1:0]  per_cluster_io_req_tag;
         wire [`NUM_CLUSTERS-1:0]                         per_cluster_io_req_ready;
 
@@ -189,7 +189,7 @@ module Vortex (
         wire [`CLOG2(`NUM_CLUSTERS)-1:0] csr_io_request_id = `CLOG2(`NUM_CLUSTERS)'(csr_io_req_coreid >> `CLOG2(`NUM_CLUSTERS));
         wire [`NC_BITS-1:0] per_cluster_csr_io_req_coreid = `NC_BITS'(csr_io_req_coreid);
 
-        for (genvar i = 0; i < `NUM_CLUSTERS; i++) begin        
+        for (genvar i = 0; i < `NUM_CLUSTERS; i++) begin
             VX_cluster #(
                 .CLUSTER_ID(i)
             ) cluster (
@@ -207,10 +207,10 @@ module Vortex (
                 .dram_req_byteen    (per_cluster_dram_req_byteen[i]),
                 .dram_req_addr      (per_cluster_dram_req_addr  [i]),
                 .dram_req_data      (per_cluster_dram_req_data  [i]),
-                .dram_req_tag       (per_cluster_dram_req_tag   [i]), 
+                .dram_req_tag       (per_cluster_dram_req_tag   [i]),
                 .dram_req_ready     (l3_core_req_ready),
 
-                .dram_rsp_valid     (per_cluster_dram_rsp_valid [i]),                
+                .dram_rsp_valid     (per_cluster_dram_rsp_valid [i]),
                 .dram_rsp_data      (per_cluster_dram_rsp_data  [i]),
                 .dram_rsp_tag       (per_cluster_dram_rsp_tag   [i]),
                 .dram_rsp_ready     (per_cluster_dram_rsp_ready [i]),
@@ -229,11 +229,11 @@ module Vortex (
                 .io_req_rw          (per_cluster_io_req_rw      [i]),
                 .io_req_byteen      (per_cluster_io_req_byteen  [i]),
                 .io_req_addr        (per_cluster_io_req_addr    [i]),
-                .io_req_data        (per_cluster_io_req_data    [i]),                
+                .io_req_data        (per_cluster_io_req_data    [i]),
                 .io_req_tag         (per_cluster_io_req_tag     [i]),
                 .io_req_ready       (per_cluster_io_req_ready   [i]),
 
-                .io_rsp_valid       (per_cluster_io_rsp_valid   [i]),            
+                .io_rsp_valid       (per_cluster_io_rsp_valid   [i]),
                 .io_rsp_data        (per_cluster_io_rsp_data    [i]),
                 .io_rsp_tag         (per_cluster_io_rsp_tag     [i]),
                 .io_rsp_ready       (per_cluster_io_rsp_ready   [i]),
@@ -245,7 +245,7 @@ module Vortex (
                 .csr_io_req_data    (per_cluster_csr_io_req_data[i]),
                 .csr_io_req_ready   (per_cluster_csr_io_req_ready[i]),
 
-                .csr_io_rsp_valid   (per_cluster_csr_io_rsp_valid[i]),            
+                .csr_io_rsp_valid   (per_cluster_csr_io_rsp_valid[i]),
                 .csr_io_rsp_data    (per_cluster_csr_io_rsp_data[i]),
                 .csr_io_rsp_ready   (per_cluster_csr_io_rsp_ready[i]),
 
@@ -268,8 +268,8 @@ module Vortex (
             .in_io_req_rw           (per_cluster_io_req_rw),
             .in_io_req_byteen       (per_cluster_io_req_byteen),
             .in_io_req_addr         (per_cluster_io_req_addr),
-            .in_io_req_data         (per_cluster_io_req_data),  
-            .in_io_req_tag          (per_cluster_io_req_tag),  
+            .in_io_req_data         (per_cluster_io_req_data),
+            .in_io_req_tag          (per_cluster_io_req_tag),
             .in_io_req_ready        (per_cluster_io_req_ready),
 
             // input responses
@@ -280,13 +280,13 @@ module Vortex (
 
             // output request
             .out_io_req_valid       (io_req_valid),
-            .out_io_req_rw          (io_req_rw),        
-            .out_io_req_byteen      (io_req_byteen),        
+            .out_io_req_rw          (io_req_rw),
+            .out_io_req_byteen      (io_req_byteen),
             .out_io_req_addr        (io_req_addr),
             .out_io_req_data        (io_req_data),
             .out_io_req_tag         (io_req_tag),
             .out_io_req_ready       (io_req_ready),
-            
+
             // output response
             .out_io_rsp_valid       (io_rsp_valid),
             .out_io_rsp_tag         (io_rsp_tag),
@@ -303,7 +303,7 @@ module Vortex (
             .request_id             (csr_io_request_id),
 
             // input requests
-            .in_csr_io_req_valid    (csr_io_req_valid),    
+            .in_csr_io_req_valid    (csr_io_req_valid),
             .in_csr_io_req_addr     (csr_io_req_addr),
             .in_csr_io_req_rw       (csr_io_req_rw),
             .in_csr_io_req_data     (csr_io_req_data),
@@ -316,11 +316,11 @@ module Vortex (
 
             // output request
             .out_csr_io_req_valid   (per_cluster_csr_io_req_valid),
-            .out_csr_io_req_addr    (per_cluster_csr_io_req_addr),            
+            .out_csr_io_req_addr    (per_cluster_csr_io_req_addr),
             .out_csr_io_req_rw      (per_cluster_csr_io_req_rw),
-            .out_csr_io_req_data    (per_cluster_csr_io_req_data),  
-            .out_csr_io_req_ready   (per_cluster_csr_io_req_ready),            
-            
+            .out_csr_io_req_data    (per_cluster_csr_io_req_data),
+            .out_csr_io_req_ready   (per_cluster_csr_io_req_ready),
+
             // output response
             .out_csr_io_rsp_valid   (csr_io_rsp_valid),
             .out_csr_io_rsp_data    (csr_io_rsp_data),
@@ -339,16 +339,16 @@ module Vortex (
         wire [`L3NUM_REQUESTS-1:0][`L2DRAM_LINE_WIDTH-1:0]   l3_core_req_data;
         wire [`L3NUM_REQUESTS-1:0][`L2DRAM_TAG_WIDTH-1:0]    l3_core_req_tag;
 
-        wire [`L3NUM_REQUESTS-1:0]                           l3_core_rsp_valid;        
+        wire [`L3NUM_REQUESTS-1:0]                           l3_core_rsp_valid;
         wire [`L3NUM_REQUESTS-1:0][`L2DRAM_LINE_WIDTH-1:0]   l3_core_rsp_data;
         wire [`L3NUM_REQUESTS-1:0][`L2DRAM_TAG_WIDTH-1:0]    l3_core_rsp_tag;
-        wire                                                 l3_core_rsp_ready;    
+        wire                                                 l3_core_rsp_ready;
 
         wire [`NUM_CLUSTERS-1:0]                             l3_snp_fwdout_valid;
         wire [`NUM_CLUSTERS-1:0][`L2DRAM_ADDR_WIDTH-1:0]     l3_snp_fwdout_addr;
         wire [`NUM_CLUSTERS-1:0]                             l3_snp_fwdout_invalidate;
         wire [`NUM_CLUSTERS-1:0][`L2SNP_TAG_WIDTH-1:0]       l3_snp_fwdout_tag;
-        wire [`NUM_CLUSTERS-1:0]                             l3_snp_fwdout_ready;    
+        wire [`NUM_CLUSTERS-1:0]                             l3_snp_fwdout_ready;
 
         wire [`NUM_CLUSTERS-1:0]                             l3_snp_fwdin_valid;
         wire [`NUM_CLUSTERS-1:0][`L2SNP_TAG_WIDTH-1:0]       l3_snp_fwdin_tag;
@@ -363,7 +363,7 @@ module Vortex (
             assign l3_core_req_byteen [i] = per_cluster_dram_req_byteen[i];
             assign l3_core_req_addr   [i] = per_cluster_dram_req_addr  [i];
             assign l3_core_req_tag    [i] = per_cluster_dram_req_tag   [i];
-            assign l3_core_req_data   [i] = per_cluster_dram_req_data  [i];            
+            assign l3_core_req_data   [i] = per_cluster_dram_req_data  [i];
 
             // Core Response
             assign per_cluster_dram_rsp_valid [i] = l3_core_rsp_valid [i] && l3_core_rsp_ready;
@@ -408,14 +408,16 @@ module Vortex (
             .DRAM_TAG_WIDTH     (`L3DRAM_TAG_WIDTH),
             .NUM_SNP_REQUESTS   (`NUM_CLUSTERS),
             .SNP_REQ_TAG_WIDTH  (`L3SNP_TAG_WIDTH),
-            .SNP_FWD_TAG_WIDTH  (`L2SNP_TAG_WIDTH)
+            .SNP_FWD_TAG_WIDTH  (`L2SNP_TAG_WIDTH),
+			.IS_RANDOM_PLACED	(0)
         ) l3cache (
             `SCOPE_SIGNALS_CACHE_UNBIND
 
             .clk                (clk),
             .reset              (reset),
+			.reseed				(0),
 
-            // Core request    
+            // Core request
             .core_req_valid     (l3_core_req_valid),
             .core_req_rw        (l3_core_req_rw),
             .core_req_byteen    (l3_core_req_byteen),
@@ -427,7 +429,7 @@ module Vortex (
             // Core response
             .core_rsp_valid     (l3_core_rsp_valid),
             .core_rsp_data      (l3_core_rsp_data),
-            .core_rsp_tag       (l3_core_rsp_tag),              
+            .core_rsp_tag       (l3_core_rsp_tag),
             .core_rsp_ready     (l3_core_rsp_ready),
 
             // Split signal
@@ -443,7 +445,7 @@ module Vortex (
             .dram_req_ready     (dram_req_ready),
 
             // DRAM response
-            .dram_rsp_valid     (dram_rsp_valid),            
+            .dram_rsp_valid     (dram_rsp_valid),
             .dram_rsp_data      (dram_rsp_data),
             .dram_rsp_tag       (dram_rsp_tag),
             .dram_rsp_ready     (dram_rsp_ready),
@@ -470,7 +472,7 @@ module Vortex (
             // Snoop forwarding in
             .snp_fwdin_valid    (l3_snp_fwdin_valid),
             .snp_fwdin_tag      (l3_snp_fwdin_tag),
-            .snp_fwdin_ready    (l3_snp_fwdin_ready)       
+            .snp_fwdin_ready    (l3_snp_fwdin_ready)
         );
     end
 

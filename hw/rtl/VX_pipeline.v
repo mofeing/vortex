@@ -1,13 +1,13 @@
 `include "VX_define.vh"
 
-module VX_pipeline #( 
+module VX_pipeline #(
     parameter CORE_ID = 0
-) (        
+) (
     `SCOPE_SIGNALS_ISTAGE_IO
     `SCOPE_SIGNALS_LSU_IO
     `SCOPE_SIGNALS_ISSUE_IO
     `SCOPE_SIGNALS_EXECUTE_IO
-    
+
     // Clock
     input wire                              clk,
     input wire                              reset,
@@ -18,14 +18,14 @@ module VX_pipeline #(
     output wire [`NUM_THREADS-1:0][3:0]     dcache_req_byteen,
     output wire [`NUM_THREADS-1:0][29:0]    dcache_req_addr,
     output wire [`NUM_THREADS-1:0][31:0]    dcache_req_data,
-    output wire [`DCORE_TAG_WIDTH-1:0]      dcache_req_tag,    
+    output wire [`DCORE_TAG_WIDTH-1:0]      dcache_req_tag,
     input wire                              dcache_req_ready,
 
-    // Dcache core reponse    
+    // Dcache core reponse
     input wire [`NUM_THREADS-1:0]           dcache_rsp_valid,
     input wire [`NUM_THREADS-1:0][31:0]     dcache_rsp_data,
-    input wire [`DCORE_TAG_WIDTH-1:0]       dcache_rsp_tag,    
-    output wire                             dcache_rsp_ready,      
+    input wire [`DCORE_TAG_WIDTH-1:0]       dcache_rsp_tag,
+    output wire                             dcache_rsp_ready,
 
     // Icache core request
     output wire                             icache_req_valid,
@@ -33,15 +33,15 @@ module VX_pipeline #(
     output wire [3:0]                       icache_req_byteen,
     output wire [29:0]                      icache_req_addr,
     output wire [31:0]                      icache_req_data,
-    output wire [`ICORE_TAG_WIDTH-1:0]      icache_req_tag,    
+    output wire [`ICORE_TAG_WIDTH-1:0]      icache_req_tag,
     input wire                              icache_req_ready,
 
-    // Icache core response    
+    // Icache core response
     input wire                              icache_rsp_valid,
     input wire [31:0]                       icache_rsp_data,
-    input wire [`ICORE_TAG_WIDTH-1:0]       icache_rsp_tag,    
+    input wire [`ICORE_TAG_WIDTH-1:0]       icache_rsp_tag,
     output wire                             icache_rsp_ready,
-    
+
     // CSR I/O Request
     input  wire                             csr_io_req_valid,
     input  wire[11:0]                       csr_io_req_addr,
@@ -52,38 +52,39 @@ module VX_pipeline #(
     // CSR I/O Response
     output wire                             csr_io_rsp_valid,
     output wire[31:0]                       csr_io_rsp_data,
-    input wire                              csr_io_rsp_ready,      
+    input wire                              csr_io_rsp_ready,
 
     // Status
-    output wire                             busy, 
-    output wire                             ebreak
+    output wire                             busy,
+    output wire                             ebreak,
+	output wire 							reseed
 );
     // Dcache
     VX_cache_core_req_if #(
-        .NUM_REQUESTS(`NUM_THREADS), 
-        .WORD_SIZE(4), 
+        .NUM_REQUESTS(`NUM_THREADS),
+        .WORD_SIZE(4),
         .CORE_TAG_WIDTH(`DCORE_TAG_WIDTH),
         .CORE_TAG_ID_BITS(`DCORE_TAG_ID_BITS)
     ) core_dcache_req_if();
 
     VX_cache_core_rsp_if #(
-        .NUM_REQUESTS(`NUM_THREADS), 
-        .WORD_SIZE(4), 
+        .NUM_REQUESTS(`NUM_THREADS),
+        .WORD_SIZE(4),
         .CORE_TAG_WIDTH(`DCORE_TAG_WIDTH),
         .CORE_TAG_ID_BITS(`DCORE_TAG_ID_BITS)
     ) core_dcache_rsp_if();
 
-    // Icache 
+    // Icache
     VX_cache_core_req_if #(
-        .NUM_REQUESTS(1), 
-        .WORD_SIZE(4), 
+        .NUM_REQUESTS(1),
+        .WORD_SIZE(4),
         .CORE_TAG_WIDTH(`ICORE_TAG_WIDTH),
         .CORE_TAG_ID_BITS(`ICORE_TAG_ID_BITS)
     )  core_icache_req_if();
 
     VX_cache_core_rsp_if #(
-        .NUM_REQUESTS(1), 
-        .WORD_SIZE(4), 
+        .NUM_REQUESTS(1),
+        .WORD_SIZE(4),
         .CORE_TAG_WIDTH(`ICORE_TAG_WIDTH),
         .CORE_TAG_ID_BITS(`ICORE_TAG_ID_BITS)
     )  core_icache_rsp_if();
@@ -97,9 +98,9 @@ module VX_pipeline #(
     assign csr_io_req_ready    = csr_io_req_if.ready;
 
     VX_csr_io_rsp_if csr_io_rsp_if();
-    assign csr_io_rsp_valid    = csr_io_rsp_if.valid; 
-    assign csr_io_rsp_data     = csr_io_rsp_if.data; 
-    assign csr_io_rsp_if.ready = csr_io_rsp_ready; 
+    assign csr_io_rsp_valid    = csr_io_rsp_if.valid;
+    assign csr_io_rsp_data     = csr_io_rsp_if.data;
+    assign csr_io_rsp_if.ready = csr_io_rsp_ready;
 
     VX_csr_to_issue_if  csr_to_issue_if();
     VX_cmt_to_csr_if    cmt_to_csr_if();
@@ -110,18 +111,18 @@ module VX_pipeline #(
     VX_alu_req_if       alu_req_if();
     VX_lsu_req_if       lsu_req_if();
     VX_csr_req_if       csr_req_if();
-    VX_mul_req_if       mul_req_if();  
-    VX_fpu_req_if       fpu_req_if(); 
+    VX_mul_req_if       mul_req_if();
+    VX_fpu_req_if       fpu_req_if();
     VX_gpu_req_if       gpu_req_if();
-    VX_writeback_if     writeback_if();     
+    VX_writeback_if     writeback_if();
     VX_wstall_if        wstall_if();
     VX_join_if          join_if();
     VX_exu_to_cmt_if    alu_commit_if();
-    VX_exu_to_cmt_if    lsu_commit_if();        
-    VX_exu_to_cmt_if    csr_commit_if(); 
-    VX_exu_to_cmt_if    mul_commit_if();     
-    VX_fpu_to_cmt_if    fpu_commit_if();     
-    VX_exu_to_cmt_if    gpu_commit_if();     
+    VX_exu_to_cmt_if    lsu_commit_if();
+    VX_exu_to_cmt_if    csr_commit_if();
+    VX_exu_to_cmt_if    mul_commit_if();
+    VX_fpu_to_cmt_if    fpu_commit_if();
+    VX_exu_to_cmt_if    gpu_commit_if();
 
     VX_fetch #(
         .CORE_ID(CORE_ID)
@@ -130,9 +131,9 @@ module VX_pipeline #(
         .clk            (clk),
         .reset          (reset),
         .icache_req_if  (core_icache_req_if),
-        .icache_rsp_if  (core_icache_rsp_if), 
+        .icache_rsp_if  (core_icache_rsp_if),
         .wstall_if      (wstall_if),
-        .join_if        (join_if),        
+        .join_if        (join_if),
         .warp_ctl_if    (warp_ctl_if),
         .branch_ctl_if  (branch_ctl_if),
         .ifetch_rsp_if  (ifetch_rsp_if),
@@ -143,7 +144,7 @@ module VX_pipeline #(
         .CORE_ID(CORE_ID)
     ) decode (
         .clk            (clk),
-        .reset          (reset),        
+        .reset          (reset),
         .ifetch_rsp_if  (ifetch_rsp_if),
         .decode_if      (decode_if),
         .wstall_if      (wstall_if),
@@ -156,14 +157,14 @@ module VX_pipeline #(
         `SCOPE_SIGNALS_ISSUE_BIND
 
         .clk            (clk),
-        .reset          (reset),        
+        .reset          (reset),
 
         .decode_if      (decode_if),
         .writeback_if   (writeback_if),
         .csr_to_issue_if(csr_to_issue_if),
 
         .alu_req_if     (alu_req_if),
-        .lsu_req_if     (lsu_req_if),        
+        .lsu_req_if     (lsu_req_if),
         .csr_req_if     (csr_req_if),
         .mul_req_if     (mul_req_if),
         .fpu_req_if     (fpu_req_if),
@@ -176,35 +177,36 @@ module VX_pipeline #(
         `SCOPE_SIGNALS_LSU_BIND
         `SCOPE_SIGNALS_EXECUTE_BIND
         .clk            (clk),
-        .reset          (reset),    
-        
+        .reset          (reset),
+
         .dcache_req_if  (core_dcache_req_if),
         .dcache_rsp_if  (core_dcache_rsp_if),
-        
+
         .csr_io_req_if  (csr_io_req_if),
         .csr_io_rsp_if  (csr_io_rsp_if),
 
         .csr_to_issue_if(csr_to_issue_if),
-        .cmt_to_csr_if  (cmt_to_csr_if),                 
-        
+        .cmt_to_csr_if  (cmt_to_csr_if),
+
         .alu_req_if     (alu_req_if),
-        .lsu_req_if     (lsu_req_if),        
+        .lsu_req_if     (lsu_req_if),
         .csr_req_if     (csr_req_if),
         .mul_req_if     (mul_req_if),
         .fpu_req_if     (fpu_req_if),
         .gpu_req_if     (gpu_req_if),
 
         .warp_ctl_if    (warp_ctl_if),
-        .branch_ctl_if  (branch_ctl_if),        
+        .branch_ctl_if  (branch_ctl_if),
         .alu_commit_if  (alu_commit_if),
-        .lsu_commit_if  (lsu_commit_if),        
+        .lsu_commit_if  (lsu_commit_if),
         .csr_commit_if  (csr_commit_if),
         .mul_commit_if  (mul_commit_if),
         .fpu_commit_if  (fpu_commit_if),
-        .gpu_commit_if  (gpu_commit_if),        
-        
-        .ebreak         (ebreak)
-    );    
+        .gpu_commit_if  (gpu_commit_if),
+
+        .ebreak         (ebreak),
+		.reseed			(reseed)
+    );
 
     VX_commit #(
         .CORE_ID(CORE_ID)
@@ -213,15 +215,15 @@ module VX_pipeline #(
         .reset          (reset),
 
         .alu_commit_if  (alu_commit_if),
-        .lsu_commit_if  (lsu_commit_if),        
+        .lsu_commit_if  (lsu_commit_if),
         .csr_commit_if  (csr_commit_if),
         .mul_commit_if  (mul_commit_if),
         .fpu_commit_if  (fpu_commit_if),
         .gpu_commit_if  (gpu_commit_if),
-        
+
         .writeback_if   (writeback_if),
         .cmt_to_csr_if  (cmt_to_csr_if)
-    );   
+    );
 
     assign dcache_req_valid  = core_dcache_req_if.valid;
     assign dcache_req_rw     = core_dcache_req_if.rw;
