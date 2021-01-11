@@ -39,6 +39,10 @@ module VX_tag_data_store #(
     assign read_valid  = valid  [read_addr];
     assign read_dirty  = dirty  [read_addr];
     assign read_dirtyb = dirtyb [read_addr];
+
+	// Detect for both tags and data possible errors
+	// All lines in Vortex have 16 bytes. Tags however are variable
+	// in size, but also smaller
     assign read_tag    = tag    [read_addr];
     assign read_data   = data   [read_addr];
 
