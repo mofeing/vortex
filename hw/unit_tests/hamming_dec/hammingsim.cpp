@@ -29,13 +29,15 @@ ECCSim::~ECCSim() {
   delete ecc_;
 }
 
-uint32_t ECCSim::calculate(uint32_t input, bool &sing, bool &dbl) {
-	ecc_->encoded = input;
+std::vector<uint32_t> ECCSim::calculate(std::vector<uint32_t> &input, bool &sing, bool &dbl) {
+	std::copy(input.begin(), input.end(), &(ecc_->encoded[0]));
+	// ecc_->data = input;
 	this->eval();
 	this->eval();
+	std::vector<uint32_t> out(ecc_->data, ecc_->data + 4);
 	sing = ecc_->corrected;
 	dbl = ecc_->invalid;
-	return ecc_->data;
+	return out;
 }
 
 void ECCSim::eval() {

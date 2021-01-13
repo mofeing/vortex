@@ -6,7 +6,7 @@
 `include "VX_hamming_func.vh"
 
 module VX_hamming_enc #(
-	parameter DATA_BITS = 15,
+	parameter DATA_BITS = 128,
 
 	parameter HAMMING_BITS = calculate_hamming_bits(DATA_BITS),
 	parameter ENCODED_BITS = DATA_BITS + HAMMING_BITS + 1
@@ -46,7 +46,7 @@ module VX_hamming_enc #(
 			for (c = 1; c <= ENCODED_BITS - 1; c++)
 			begin
 				if (|((2**p) & c))
-					hamming_code[p] = hamming_code[p] ^ encode_hamming[c];
+					hamming_code[p] = hamming_code[p] ^ encode_hamming[c-1];
 			end
 		end
 

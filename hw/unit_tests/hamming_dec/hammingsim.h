@@ -19,7 +19,7 @@ public:
   ECCSim();
   virtual ~ECCSim();
 
-  uint32_t calculate(uint32_t input, bool &sing, bool &dbl);
+  std::vector<uint32_t> calculate(std::vector<uint32_t> &input, bool &sing, bool &dbl);
 
   private:
   void eval();

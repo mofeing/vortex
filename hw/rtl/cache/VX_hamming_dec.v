@@ -6,7 +6,7 @@
 `include "VX_hamming_func.vh"
 
 module VX_hamming_dec #(
-	parameter DATA_BITS = 15,
+	parameter DATA_BITS = 128,
 
 	parameter HAMMING_BITS = calculate_hamming_bits(DATA_BITS),
 	parameter ENCODED_BITS = DATA_BITS + HAMMING_BITS + 1
