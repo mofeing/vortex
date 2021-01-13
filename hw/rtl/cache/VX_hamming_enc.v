@@ -3,17 +3,7 @@
 // It can correct a single bit error and detect double errors. Triple errors
 // may be wrongfully corrected.
 
-function integer calculate_hamming_bits;
-  input integer databits;
-  integer hamming;
-begin
-  hamming = 1;
-  while (2**hamming < hamming + databits + 1)
-  	hamming++;
-
-  calculate_hamming_bits = hamming;
-end
-endfunction
+`include "VX_hamming_func.vh"
 
 module VX_hamming_enc #(
 	parameter DATA_BITS = 15,
