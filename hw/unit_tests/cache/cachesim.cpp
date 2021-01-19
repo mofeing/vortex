@@ -7,12 +7,12 @@
 
 uint64_t timestamp = 0;
 
-double sc_time_stamp() { 
+double sc_time_stamp() {
   return timestamp;
 }
 
 CacheSim::CacheSim() {
-  // force random values for uninitialized signals  
+  // force random values for uninitialized signals
   Verilated::randReset(2);
 
   ram_ = nullptr;
@@ -54,7 +54,7 @@ void CacheSim::reset() {
 
   dram_rsp_vec_.clear();
   //clear req and rsp vecs
-  
+
 }
 
 void CacheSim::step() {
@@ -83,23 +83,23 @@ void CacheSim::eval() {
 
 void CacheSim::run(){
 //#ifndef NDEBUG
-  
+
 //#endif
   this->step();
 
-  int valid = 300; 
-  
+  int valid = 300;
+
   while (valid > -1) {
 
       this->step();
       if(!cache_->core_req_valid && !cache_->core_rsp_valid){
-        valid--; 
+        valid--;
       }
   }
 }
 
 void CacheSim::clear_req(){
-  cache_->core_req_valid = 0; 
+  cache_->core_req_valid = 0;
 }
 
 
@@ -110,11 +110,11 @@ void CacheSim::send_req(core_req_t *req){
 }
 
 bool CacheSim::get_core_req_ready(){
-  return cache_->core_req_ready; 
+  return cache_->core_req_ready;
 }
 
 bool CacheSim::get_core_rsp_ready(){
-  return cache_->core_rsp_ready; 
+  return cache_->core_rsp_ready;
 }
 
 void CacheSim::eval_reqs(){
@@ -123,7 +123,7 @@ void CacheSim::eval_reqs(){
     core_req_t *req = core_req_vec_.front();
 
     cache_->core_req_valid = req->valid;
-    cache_->core_req_rw = req->rw; 
+    cache_->core_req_rw = req->rw;
     cache_->core_req_byteen = req->byteen;
 
     cache_->core_req_addr[0] = req->addr[0];
@@ -136,10 +136,10 @@ void CacheSim::eval_reqs(){
     cache_->core_req_data[2] = req->data[2];
     cache_->core_req_data[3] = req->data[3];
 
-    cache_->core_req_tag = req->tag; 
+    cache_->core_req_tag = req->tag;
 
     core_req_vec_.pop();
-   
+
   } else {
     clear_req();
   }
@@ -152,6 +152,10 @@ void CacheSim::eval_rsps(){
       core_rsp_vec_.at(cache_->core_rsp_tag)[1] = cache_->core_rsp_data[1];
       core_rsp_vec_.at(cache_->core_rsp_tag)[2] = cache_->core_rsp_data[2];
       core_rsp_vec_.at(cache_->core_rsp_tag)[3] = cache_->core_rsp_data[3];
+
+	  cache_->core_rsp_ready = 1;
+  } else {
+	  cache_->core_rsp_ready = 0;
   }
 }
 
@@ -167,15 +171,15 @@ void CacheSim::eval_dram_bus() {
     if (dram_rsp_vec_[i].cycles_left > 0) {
       dram_rsp_vec_[i].cycles_left -= 1;
     }
-    if ((dequeue_index == -1) 
+    if ((dequeue_index == -1)
      && (dram_rsp_vec_[i].cycles_left == 0)) {
       dequeue_index = i;
     }
   }
 
-  // send DRAM response  
+  // send DRAM response
   if (dram_rsp_active_
-   && cache_->dram_rsp_valid 
+   && cache_->dram_rsp_valid
    && cache_->dram_rsp_ready) {
     dram_rsp_active_ = false;
   }
@@ -186,7 +190,7 @@ void CacheSim::eval_dram_bus() {
       //copy data from the rsp queue to the cache module
       memcpy((uint8_t*)cache_->dram_rsp_data, dram_rsp_vec_[dequeue_index].data, GLOBAL_BLOCK_SIZE);
 
-      cache_->dram_rsp_tag = dram_rsp_vec_[dequeue_index].tag;    
+      cache_->dram_rsp_tag = dram_rsp_vec_[dequeue_index].tag;
       free(dram_rsp_vec_[dequeue_index].data); //take data out of the queue
       dram_rsp_vec_.erase(dram_rsp_vec_.begin() + dequeue_index);
       dram_rsp_active_ = true;
@@ -198,7 +202,7 @@ void CacheSim::eval_dram_bus() {
   // handle DRAM stalls
   bool dram_stalled = false;
 #ifdef ENABLE_DRAM_STALLS
-  if (0 == ((timestamp/2) % DRAM_STALLS_MODULO)) { 
+  if (0 == ((timestamp/2) % DRAM_STALLS_MODULO)) {
     dram_stalled = true;
   } else
   if (dram_rsp_vec_.size() >= DRAM_RQ_SIZE) {
@@ -214,19 +218,19 @@ void CacheSim::eval_dram_bus() {
         unsigned base_addr = (cache_->dram_req_addr * GLOBAL_BLOCK_SIZE);
         uint8_t* data = (uint8_t*)(cache_->dram_req_data);
         for (int i = 0; i < GLOBAL_BLOCK_SIZE; i++) {
-          if ((byteen >> i) & 0x1) {            
+          if ((byteen >> i) & 0x1) {
             (*ram_)[base_addr + i] = data[i];
           }
         }
       } else {
         dram_req_t dram_req;
-        dram_req.cycles_left = DRAM_LATENCY;     
+        dram_req.cycles_left = DRAM_LATENCY;
         dram_req.data = (uint8_t*)malloc(GLOBAL_BLOCK_SIZE);
         dram_req.tag = cache_->dram_req_tag;
         ram_->read(cache_->dram_req_addr * GLOBAL_BLOCK_SIZE, GLOBAL_BLOCK_SIZE, dram_req.data);
         dram_rsp_vec_.push_back(dram_req);
-      } 
-    }    
+      }
+    }
   }
 
   cache_->dram_req_ready = ~dram_stalled;
@@ -243,7 +247,7 @@ bool CacheSim::assert_equal(unsigned int* data, unsigned int tag){
     }
   }
 
-  return check; 
+  return check;
 
 }
 
@@ -257,18 +261,18 @@ void CacheSim::get_core_rsp(unsigned int (&rsp)[4]){
 
   //std::cout << std::hex << "core_rsp_valid: " << cache_->core_rsp_valid << std::endl;
   //std::cout << std::hex << "core_rsp_data: " << cache_->core_rsp_data << std::endl;
-  //std::cout << std::hex << "core_rsp_tag: " << cache_->core_rsp_tag << std::endl; 
+  //std::cout << std::hex << "core_rsp_tag: " << cache_->core_rsp_tag << std::endl;
 }
 
 void CacheSim::get_core_req(){
-  //std::cout << cache_->genblk5_BRA_0_KET_->bank->is_fill_in_pipe<< std::endl; 
+  //std::cout << cache_->genblk5_BRA_0_KET_->bank->is_fill_in_pipe<< std::endl;
   char check = cache_->core_req_valid;
   std::cout << std::hex << "core_req_valid: " << check << std::endl;
   std::cout << std::hex << "core_req_data[0]: " << cache_->core_req_data[0] << std::endl;
   std::cout << std::hex << "core_req_data[1]: " << cache_->core_req_data[1] << std::endl;
   std::cout << std::hex << "core_req_data[2]: " << cache_->core_req_data[2] << std::endl;
   std::cout << std::hex << "core_req_data[3]: " << cache_->core_req_data[3] << std::endl;
-  std::cout << std::hex << "core_req_tag: " << cache_->core_req_tag << std::endl; 
+  std::cout << std::hex << "core_req_tag: " << cache_->core_req_tag << std::endl;
 }
 
 void CacheSim::get_dram_req(){
@@ -276,13 +280,13 @@ void CacheSim::get_dram_req(){
   std::cout << std::hex << "dram_req_rw: " << cache_->dram_req_rw << std::endl;
   std::cout << std::hex << "dram_req_byteen: " << cache_->dram_req_byteen << std::endl;
   std::cout << std::hex << "dram_req_addr: " << cache_->dram_req_addr << std::endl;
-  std::cout << std::hex << "dram_req_data: " << cache_->dram_req_data << std::endl; 
+  std::cout << std::hex << "dram_req_data: " << cache_->dram_req_data << std::endl;
   std::cout << std::hex << "dram_req_tag: " << cache_->dram_req_tag << std::endl;
 }
 
 void CacheSim::get_dram_rsp(){
   std::cout << std::hex << "dram_rsp_valid: " << cache_->dram_rsp_valid << std::endl;
-  std::cout << std::hex << "dram_rsp_data: " << cache_->dram_rsp_data << std::endl; 
+  std::cout << std::hex << "dram_rsp_data: " << cache_->dram_rsp_data << std::endl;
   std::cout << std::hex << "dram_rsp_tag: " << cache_->dram_rsp_tag << std::endl;
   std::cout << std::hex << "dram_rsp_ready: " << cache_->dram_rsp_ready << std::endl;
 }
