@@ -166,7 +166,7 @@ module VX_mem_unit # (
         .CORE_TAG_ID_BITS       (`DCORE_TAG_ID_BITS),
         .DRAM_TAG_WIDTH         (`DDRAM_TAG_WIDTH),
         .SNP_REQ_TAG_WIDTH      (`DSNP_TAG_WIDTH),
-		.IS_RANDOM_PLACED		(1)
+		.IS_RANDOM_PLACED		(0)
     ) dcache (
         `SCOPE_SIGNALS_CACHE_BIND
 
