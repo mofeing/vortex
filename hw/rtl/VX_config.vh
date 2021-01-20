@@ -59,6 +59,10 @@
 `define EXT_F_ENABLE
 `endif
 
+`ifndef SPLIT_EN
+`define SPLIT_EN 0
+`endif
+
 //`define FPU_FAST
 
 // Device identification

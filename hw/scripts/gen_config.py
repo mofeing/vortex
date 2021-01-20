@@ -59,9 +59,12 @@ if args.outc != 'none':
 translation_rules = [
     (re.compile(r'^$'), r''),
     (re.compile(r'^(\s*)`ifndef\s+([^ ]+)'), r'\1#ifndef \2'),
+    (re.compile(r'^(\s*)`ifdef\s+([^ ]+)'), r'\1#ifdef \2'),
+    (re.compile(r'^(\s*)`undef\s+([^ ]+)'), r'\1#undef \2'),
     (re.compile(r'^(\s*)`define\s+([^ ]+)'), r'\1#define \2'),
     (re.compile(r'^(\s*)`include "VX_user_config\.vh"'), r''),
     (re.compile(r'^(\s*)`define\s+([^ ]+) (.+)'), r'\1#define \2 \3'),
+    (re.compile(r'^(\s*)`else\s+'), r'\1#else'),
     (re.compile(r'^(\s*)`endif\s+'), r'\1#endif'),
     (re.compile(r'^(\s*)//(.*)'), r'\1// \2'),
 ]

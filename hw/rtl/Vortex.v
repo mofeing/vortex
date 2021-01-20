@@ -355,7 +355,7 @@ module Vortex (
         wire [`NUM_CLUSTERS-1:0]                             l3_snp_fwdin_ready;
 
         // TODO Connect `split_en` to a CSR
-        wire                                                 split_en;
+        wire                                                 split_en = `SPLIT_EN;
 
         for (genvar i = 0; i < `L3NUM_REQUESTS; i++) begin
             // Core Request
