@@ -1,5 +1,5 @@
 #!/bin/sh
-./build-rtl.sh
+source env.sh
 cd hw/unit_tests/
 
 make -C cache run

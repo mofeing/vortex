@@ -1,3 +1,3 @@
 #!/bin/sh
-./env.sh
+source env.sh
 make -j4 -C hw
